@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Pendaftaran extends Model
 {
@@ -47,5 +48,12 @@ class Pendaftaran extends Model
             'pendaftaran_id'
         );
     }
+    public function labPermintaans(): HasMany
+{
+    return $this->hasMany(
+        LabPermintaan::class,
+        'pendaftaran_id'
+    );
+}
     
 }

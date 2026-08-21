@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Permission\Traits\HasRoles;
 use App\Models\Dokter;
 
@@ -52,5 +53,12 @@ class User extends Authenticatable
     public function dokter()
 {
     return $this->hasOne(Dokter::class);
+}
+public function labHasilVerifikasi(): HasMany
+{
+    return $this->hasMany(
+        LabHasil::class,
+        'verified_by'
+    );
 }
 }

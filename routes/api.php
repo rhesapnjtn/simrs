@@ -6,10 +6,14 @@ use App\Http\Controllers\Api\PoliController;
 use App\Http\Controllers\Api\DokterController;
 use App\Http\Controllers\Api\PasienController;
 use App\Http\Controllers\Api\PendaftaranController;
-use App\Http\Controllers\PemeriksaanController;
 use App\Http\Controllers\Api\ObatController;
-use App\Http\Controllers\ResepController;
 use App\Http\Controllers\Api\ApotekController;
+use App\Http\Controllers\Api\LabPemeriksaanController;
+use App\Http\Controllers\Api\LabPermintaanController;
+use App\Http\Controllers\Api\LabHasilPdfController;
+use App\Http\Controllers\PemeriksaanController;
+use App\Http\Controllers\ResepController;
+
 use Illuminate\Support\Facades\Route;
 
 
@@ -17,7 +21,11 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 | API ROUTES
 |--------------------------------------------------------------------------
+|
+| Semua route di file ini menggunakan prefix /api
+|
 */
+
 
 Route::middleware('web')->group(function () {
 
@@ -61,12 +69,33 @@ Route::middleware('web')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | SUPER ADMIN
+        | LABORATORIUM - MASTER PEMERIKSAAN AKTIF
         |--------------------------------------------------------------------------
         |
-        | Semua endpoint di dalam group ini hanya dapat
-        | digunakan oleh SUPER_ADMIN.
+        | PENTING:
+        | Route /active harus berada sebelum:
         |
+        | /lab-pemeriksaans/{labPemeriksaan}
+        |
+        | agar "active" tidak dianggap sebagai ID pemeriksaan.
+        |
+        | Bisa digunakan oleh:
+        | - SUPER_ADMIN
+        | - DOKTER
+        | - PETUGAS LAB
+        |
+        */
+
+        Route::get(
+            '/lab-pemeriksaans/active',
+            [LabPemeriksaanController::class, 'active']
+        );
+    
+
+        /*
+        |--------------------------------------------------------------------------
+        | SUPER ADMIN
+        |--------------------------------------------------------------------------
         */
 
         Route::middleware('superadmin')->group(function () {
@@ -113,10 +142,6 @@ Route::middleware('web')->group(function () {
             |--------------------------------------------------------------------------
             | PENDAFTARAN MANAGEMENT
             |--------------------------------------------------------------------------
-            |
-            | Pembuatan dan perubahan status pendaftaran
-            | tetap menjadi hak SUPER_ADMIN.
-            |
             */
 
             Route::get(
@@ -213,6 +238,40 @@ Route::middleware('web')->group(function () {
                 [DokterController::class, 'polis']
             );
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | MASTER PEMERIKSAAN LABORATORIUM
+            |--------------------------------------------------------------------------
+            |
+            | CRUD hanya untuk SUPER_ADMIN.
+            |
+            */
+
+            Route::get(
+                '/lab-pemeriksaans',
+                [LabPemeriksaanController::class, 'index']
+            );
+
+            Route::post(
+                '/lab-pemeriksaans',
+                [LabPemeriksaanController::class, 'store']
+            );
+
+            Route::get(
+                '/lab-pemeriksaans/{labPemeriksaan}',
+                [LabPemeriksaanController::class, 'show']
+            );
+
+            Route::put(
+                '/lab-pemeriksaans/{labPemeriksaan}',
+                [LabPemeriksaanController::class, 'update']
+            );
+
+            Route::delete(
+                '/lab-pemeriksaans/{labPemeriksaan}',
+                [LabPemeriksaanController::class, 'destroy']
+            );
         });
 
 
@@ -221,15 +280,10 @@ Route::middleware('web')->group(function () {
         | PENDAFTARAN - READ ACCESS
         |--------------------------------------------------------------------------
         |
-        | Endpoint ini dibutuhkan oleh:
-        |
-        | - Dokter
-        | - Perawat
-        | - Super Admin
-        |
-        | Dokter membutuhkan data pendaftaran untuk:
-        | - Pemeriksaan
-        | - Resep
+        | Digunakan oleh:
+        | - SUPER_ADMIN
+        | - DOKTER
+        | - PERAWAT
         |
         */
 
@@ -243,13 +297,6 @@ Route::middleware('web')->group(function () {
         |--------------------------------------------------------------------------
         | MASTER PASIEN
         |--------------------------------------------------------------------------
-        |
-        | Digunakan oleh:
-        | - SUPER_ADMIN
-        | - ADMIN
-        | - DOKTER
-        | - PERAWAT
-        |
         */
 
         Route::get(
@@ -282,15 +329,6 @@ Route::middleware('web')->group(function () {
         |--------------------------------------------------------------------------
         | DOKTER - READ ACCESS
         |--------------------------------------------------------------------------
-        |
-        | Endpoint GET /dokters dibutuhkan oleh dokter
-        | ketika membuat resep.
-        |
-        | Contoh:
-        |
-        | ResepPage.vue
-        | axios.get('/api/dokters')
-        |
         */
 
         Route::get(
@@ -303,12 +341,6 @@ Route::middleware('web')->group(function () {
         |--------------------------------------------------------------------------
         | PEMERIKSAAN PASIEN
         |--------------------------------------------------------------------------
-        |
-        | Bisa digunakan oleh:
-        | - SUPER_ADMIN
-        | - DOKTER
-        | - PERAWAT
-        |
         */
 
         Route::get(
@@ -332,23 +364,17 @@ Route::middleware('web')->group(function () {
             '/pasien/{pasien}/riwayat-pemeriksaan',
             [PemeriksaanController::class, 'riwayatPasien']
         );
+
         Route::get(
-    '/dokter/pasien-riwayat',
-    [PemeriksaanController::class, 'pasienDokter']
-);
-Route::get(
-    '/dokter/pasien-riwayat',
-    [PemeriksaanController::class, 'pasienDokter']
-);
+            '/dokter/pasien-riwayat',
+            [PemeriksaanController::class, 'pasienDokter']
+        );
 
 
         /*
         |--------------------------------------------------------------------------
         | OBAT
         |--------------------------------------------------------------------------
-        |
-        | Untuk sekarang tetap berada pada authenticated route.
-        |
         */
 
         Route::get(
@@ -393,14 +419,14 @@ Route::get(
             [ResepController::class, 'index']
         );
 
-        Route::get(
-            '/reseps/{id}',
-            [ResepController::class, 'show']
-        );
-
         Route::post(
             '/reseps',
             [ResepController::class, 'store']
+        );
+
+        Route::get(
+            '/reseps/{id}',
+            [ResepController::class, 'show']
         );
 
         Route::put(
@@ -437,12 +463,85 @@ Route::get(
             '/apotek/reseps/{id}/proses',
             [ApotekController::class, 'proses']
         );
+
         Route::put(
-    '/apotek/reseps/{id}/selesai',
-    [ApotekController::class, 'selesai']
+            '/apotek/reseps/{id}/selesai',
+            [ApotekController::class, 'selesai']
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | LABORATORIUM - PERMINTAAN
+        |--------------------------------------------------------------------------
+        |
+        | Dokter dapat membuat permintaan laboratorium.
+        |
+        */
+
+        Route::get(
+            '/lab-permintaans',
+            [LabPermintaanController::class, 'index']
+        );
+
+        Route::post(
+            '/lab-permintaans',
+            [LabPermintaanController::class, 'store']
+        );
+
+        Route::get(
+            '/lab-permintaans/{labPermintaan}',
+            [LabPermintaanController::class, 'show']
+        );
+
+        Route::put(
+            '/lab-permintaans/{labPermintaan}',
+            [LabPermintaanController::class, 'update']
+        );
+
+        Route::put(
+            '/lab-permintaans/{labPermintaan}/status',
+            [LabPermintaanController::class, 'updateStatus']
+        );
+
+        Route::delete(
+            '/lab-permintaans/{labPermintaan}',
+            [LabPermintaanController::class, 'destroy']
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | LABORATORIUM - HASIL
+        |--------------------------------------------------------------------------
+        |
+        | Petugas laboratorium dapat memasukkan hasil.
+        |
+        */
+
+        Route::post(
+            '/lab-permintaan-details/{detail}/hasil',
+            [LabPermintaanController::class, 'storeHasil']
+        );
+
+        Route::put(
+            '/lab-hasil/{hasil}',
+            [LabPermintaanController::class, 'updateHasil']
+        );
+
+        Route::put(
+            '/lab-hasil/{hasil}/verifikasi',
+            [LabPermintaanController::class, 'verifikasiHasil']
+        );
+        /*
+|--------------------------------------------------------------------------
+| LABORATORIUM - CETAK HASIL
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/lab-permintaans/{labPermintaan}/cetak',
+    [LabHasilPdfController::class, 'cetak']
 );
-
     });
-    
-
 });

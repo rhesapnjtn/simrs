@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
+use Illuminate\Database\Eloquent\Relations\HasMany;
 class Dokter extends Model
 {
     protected $fillable = [
@@ -39,5 +39,12 @@ class Dokter extends Model
     public function pendaftarans()
 {
     return $this->hasMany(Pendaftaran::class);
+}
+public function labPermintaans(): HasMany
+{
+    return $this->hasMany(
+        LabPermintaan::class,
+        'dokter_id'
+    );
 }
 }

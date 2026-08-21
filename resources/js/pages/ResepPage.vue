@@ -1,9 +1,14 @@
+```vue
 <template>
     <div class="min-h-screen bg-gray-50 p-6">
         <div class="mx-auto max-w-7xl">
 
+            <!-- ================================================= -->
             <!-- HEADER -->
-            <div class="mb-6 flex items-center justify-between">
+            <!-- ================================================= -->
+
+            <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
                 <div>
                     <h1 class="text-2xl font-bold text-gray-800">
                         Resep Obat
@@ -20,176 +25,270 @@
                 >
                     + Buat Resep
                 </button>
+
             </div>
 
-            <!-- ALERT SUCCESS -->
+
+            <!-- ================================================= -->
+            <!-- SUCCESS -->
+            <!-- ================================================= -->
+
             <div
                 v-if="successMessage"
-                class="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
+                class="mb-5 flex items-center justify-between rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
             >
-                {{ successMessage }}
+                <span>
+                    {{ successMessage }}
+                </span>
+
+                <button
+                    @click="successMessage = ''"
+                    class="text-green-700 hover:text-green-900"
+                >
+                    ×
+                </button>
             </div>
 
-            <!-- ALERT ERROR -->
+
+            <!-- ================================================= -->
+            <!-- ERROR -->
+            <!-- ================================================= -->
+
             <div
                 v-if="errorMessage"
-                class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                class="mb-5 flex items-center justify-between rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
             >
-                {{ errorMessage }}
+                <span>
+                    {{ errorMessage }}
+                </span>
+
+                <button
+                    @click="errorMessage = ''"
+                    class="text-red-700 hover:text-red-900"
+                >
+                    ×
+                </button>
             </div>
 
+
+            <!-- ================================================= -->
             <!-- TABLE -->
+            <!-- ================================================= -->
+
             <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
                 <div class="border-b border-gray-200 px-6 py-4">
+
                     <h2 class="font-semibold text-gray-800">
                         Daftar Resep
                     </h2>
+
+                    <p class="mt-1 text-xs text-gray-500">
+                        Daftar resep yang telah dibuat.
+                    </p>
+
                 </div>
+
 
                 <div class="overflow-x-auto">
 
                     <table class="w-full text-left text-sm">
 
                         <thead class="bg-gray-50 text-xs uppercase text-gray-500">
-    <tr>
-        <th class="px-6 py-4">
-            No. Resep
-        </th>
 
-        <th class="px-6 py-4">
-            Pasien
-        </th>
+                            <tr>
 
-        <th class="px-6 py-4">
-            Tanggal
-        </th>
+                                <th class="px-6 py-4">
+                                    No. Resep
+                                </th>
 
-        <th class="px-6 py-4">
-            Dokter
-        </th>
+                                <th class="px-6 py-4">
+                                    Pasien
+                                </th>
 
-        <th class="px-6 py-4">
-            Jumlah Obat
-        </th>
+                                <th class="px-6 py-4">
+                                    Tanggal
+                                </th>
 
-        <th class="px-6 py-4">
-            Status
-        </th>
+                                <th class="px-6 py-4">
+                                    Dokter
+                                </th>
 
-        <th class="px-6 py-4 text-center">
-            Aksi
-        </th>
-    </tr>
-</thead>
+                                <th class="px-6 py-4">
+                                    Jumlah Obat
+                                </th>
+
+                                <th class="px-6 py-4">
+                                    Status
+                                </th>
+
+                                <th class="px-6 py-4 text-center">
+                                    Aksi
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
 
                         <tbody class="divide-y divide-gray-100">
 
-    <!-- LOADING -->
-    <tr v-if="loading">
-        <td
-            colspan="7"
-            class="px-6 py-10 text-center text-gray-500"
-        >
-            Memuat data resep...
-        </td>
-    </tr>
+                            <!-- LOADING -->
 
-    <!-- EMPTY -->
-    <tr v-else-if="reseps.length === 0">
-        <td
-            colspan="7"
-            class="px-6 py-10 text-center text-gray-500"
-        >
-            Belum ada resep.
-        </td>
-    </tr>
+                            <tr v-if="loading">
 
-    <!-- DATA -->
-    <tr
-        v-for="resep in reseps"
-        :key="resep.id"
-        class="transition hover:bg-gray-50"
-    >
+                                <td
+                                    colspan="7"
+                                    class="px-6 py-10 text-center text-gray-500"
+                                >
+                                    Memuat data resep...
+                                </td>
 
-        <!-- NO RESEP -->
-        <td class="px-6 py-4 font-semibold text-gray-800">
-            {{ resep.no_resep }}
-        </td>
+                            </tr>
 
-        <!-- PASIEN -->
-        <td class="px-6 py-4">
-            <div class="font-medium text-gray-800">
-                {{ getPatientName(resep) }}
-            </div>
 
-            <div class="mt-1 text-xs text-gray-500">
-                {{ getPatientRM(resep) }}
-            </div>
-        </td>
+                            <!-- EMPTY -->
 
-        <!-- TANGGAL -->
-        <td class="px-6 py-4 text-gray-600">
-            {{ formatDate(resep.tanggal_resep) }}
-        </td>
+                            <tr v-else-if="reseps.length === 0">
 
-        <!-- DOKTER -->
-        <td class="px-6 py-4 text-gray-600">
-            {{ getDoctorName(resep) }}
-        </td>
+                                <td
+                                    colspan="7"
+                                    class="px-6 py-10 text-center"
+                                >
 
-        <!-- JUMLAH OBAT -->
-        <td class="px-6 py-4 text-gray-600">
-            {{ resep.details?.length ?? 0 }} obat
-        </td>
+                                    <div class="text-4xl">
+                                        💊
+                                    </div>
 
-        <!-- STATUS -->
-        <td class="px-6 py-4">
-            <span
-                class="rounded-full px-3 py-1 text-xs font-semibold"
-                :class="statusClass(resep.status)"
-            >
-                {{ resep.status }}
-            </span>
-        </td>
+                                    <p class="mt-3 font-medium text-gray-700">
+                                        Belum ada resep
+                                    </p>
 
-        <!-- AKSI -->
-        <td class="px-6 py-4 text-center">
+                                    <p class="mt-1 text-sm text-gray-500">
+                                        Belum terdapat resep yang dibuat.
+                                    </p>
 
-            <button
-    @click="viewResep(resep)"
-    class="mr-2 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-200"
->
-    Detail
-</button>
+                                </td>
 
-<button
-    v-if="resep.status === 'MENUNGGU'"
-    @click="processResep(resep)"
-    class="mr-2 rounded-lg bg-blue-100 px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-200"
->
-    Proses
-</button>
+                            </tr>
 
-<button
-    @click="deleteResep(resep)"
-    class="rounded-lg bg-red-100 px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-200"
->
-    Hapus
-</button>
 
-        </td>
+                            <!-- DATA -->
 
-    </tr>
+                            <tr
+                                v-for="resep in reseps"
+                                :key="resep.id"
+                                class="transition hover:bg-gray-50"
+                            >
 
-</tbody>
+                                <!-- NO RESEP -->
+
+                                <td class="px-6 py-4 font-semibold text-gray-800">
+
+                                    {{ resep.no_resep }}
+
+                                </td>
+
+
+                                <!-- PASIEN -->
+
+                                <td class="px-6 py-4">
+
+                                    <div class="font-medium text-gray-800">
+                                        {{ getPatientName(resep) }}
+                                    </div>
+
+                                    <div class="mt-1 text-xs text-gray-500">
+                                        {{ getPatientRM(resep) }}
+                                    </div>
+
+                                </td>
+
+
+                                <!-- TANGGAL -->
+
+                                <td class="px-6 py-4 text-gray-600">
+
+                                    {{ formatDate(resep.tanggal_resep) }}
+
+                                </td>
+
+
+                                <!-- DOKTER -->
+
+                                <td class="px-6 py-4 text-gray-600">
+
+                                    {{ getDoctorName(resep) }}
+
+                                </td>
+
+
+                                <!-- JUMLAH OBAT -->
+
+                                <td class="px-6 py-4 text-gray-600">
+
+                                    {{ resep.details?.length ?? 0 }}
+                                    obat
+
+                                </td>
+
+
+                                <!-- STATUS -->
+
+                                <td class="px-6 py-4">
+
+                                    <span
+                                        class="rounded-full px-3 py-1 text-xs font-semibold"
+                                        :class="statusClass(resep.status)"
+                                    >
+                                        {{ resep.status }}
+                                    </span>
+
+                                </td>
+
+
+                                <!-- AKSI -->
+
+                                <td class="px-6 py-4 text-center whitespace-nowrap">
+
+                                    <button
+                                        @click="viewResep(resep)"
+                                        class="mr-2 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-200"
+                                    >
+                                        Detail
+                                    </button>
+
+
+                                    <button
+                                        v-if="resep.status === 'MENUNGGU'"
+                                        @click="processResep(resep)"
+                                        class="mr-2 rounded-lg bg-blue-100 px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-200"
+                                    >
+                                        Proses
+                                    </button>
+
+
+                                    <button
+                                        @click="deleteResep(resep)"
+                                        class="rounded-lg bg-red-100 px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-200"
+                                    >
+                                        Hapus
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
 
                     </table>
 
                 </div>
+
             </div>
 
         </div>
+
 
         <!-- ================================================= -->
         <!-- MODAL BUAT RESEP -->
@@ -200,119 +299,560 @@
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
         >
 
-            <div class="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white shadow-xl">
+            <div
+                class="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-2xl bg-white shadow-2xl"
+            >
 
+                <!-- ================================================= -->
                 <!-- MODAL HEADER -->
-                <div class="flex items-center justify-between border-b px-6 py-5">
+                <!-- ================================================= -->
+
+                <div class="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-6 py-5">
 
                     <div>
+
                         <h2 class="text-xl font-bold text-gray-800">
                             Buat Resep Baru
                         </h2>
 
                         <p class="mt-1 text-sm text-gray-500">
-                            Masukkan obat yang diresepkan kepada pasien.
+                            Cari pasien dan pilih kunjungan yang akan digunakan untuk resep.
                         </p>
+
                     </div>
+
 
                     <button
                         @click="closeCreateModal"
-                        class="text-2xl text-gray-400 hover:text-gray-700"
+                        class="flex h-9 w-9 items-center justify-center rounded-lg text-2xl text-gray-400 hover:bg-gray-100 hover:text-gray-700"
                     >
                         ×
                     </button>
 
                 </div>
 
+
+                <!-- ================================================= -->
                 <!-- FORM -->
+                <!-- ================================================= -->
+
                 <form
                     @submit.prevent="submitResep"
                     class="space-y-6 p-6"
                 >
 
-                    <!-- DATA RESEP -->
-                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                    <!-- ================================================= -->
+                    <!-- STEP 1 : CARI PASIEN -->
+                    <!-- ================================================= -->
 
-                        <!-- PENDAFTARAN -->
-                        <div>
-                            <label class="mb-2 block text-sm font-medium text-gray-700">
-                                Pendaftaran
-                            </label>
+                    <div class="rounded-2xl border border-gray-200 bg-white">
 
-                            <select
-                                v-model="form.pendaftaran_id"
-                                required
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                            >
-                                <option value="">
-                                    Pilih pendaftaran
-                                </option>
+                        <div class="border-b bg-gray-50 px-5 py-4">
 
-                                <option
-                                    v-for="pendaftaran in pendaftarans"
-                                    :key="pendaftaran.id"
-                                    :value="pendaftaran.id"
+                            <div class="flex items-center gap-3">
+
+                                <div
+                                    class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-600"
                                 >
-                                    {{ getRegistrationLabel(pendaftaran) }}
-                                </option>
-                            </select>
+                                    1
+                                </div>
+
+                                <div>
+
+                                    <h3 class="font-semibold text-gray-800">
+                                        Pilih Pasien
+                                    </h3>
+
+                                    <p class="text-xs text-gray-500">
+                                        Cari berdasarkan nama atau nomor rekam medis.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
                         </div>
 
-                        <!-- DOKTER -->
-                        <div>
-                            <label class="mb-2 block text-sm font-medium text-gray-700">
-                                Dokter
-                            </label>
 
-                            <select
-                                v-model="form.dokter_id"
-                                required
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                            >
-                                <option value="">
-                                    Pilih dokter
-                                </option>
+                        <div class="p-5">
 
-                                <option
-                                    v-for="dokter in dokters"
-                                    :key="dokter.id"
-                                    :value="dokter.id"
+                            <!-- SEARCH -->
+
+                            <div class="relative">
+
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400"
                                 >
-                                    {{ getDoctorNameFromData(dokter) }}
-                                </option>
-                            </select>
+                                    🔍
+                                </div>
+
+                                <input
+                                    v-model="patientSearch"
+                                    type="text"
+                                    placeholder="Cari nama pasien atau No. RM..."
+                                    class="w-full rounded-xl border border-gray-300 py-3 pl-11 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                                    autocomplete="off"
+                                />
+
+                            </div>
+
+
+                            <!-- SEARCH LOADING -->
+
+                            <div
+                                v-if="patientSearchLoading"
+                                class="mt-3 rounded-xl bg-gray-50 p-4 text-center text-sm text-gray-500"
+                            >
+                                Mencari pasien...
+                            </div>
+
+
+                            <!-- SEARCH RESULT -->
+
+                            <div
+                                v-if="
+                                    patientSearch &&
+                                    !patientSearchLoading &&
+                                    patientResults.length > 0 &&
+                                    !selectedPatient
+                                "
+                                class="mt-3 overflow-hidden rounded-xl border border-gray-200"
+                            >
+
+                                <button
+                                    v-for="patient in patientResults"
+                                    :key="patient.id"
+                                    type="button"
+                                    @click="selectPatient(patient)"
+                                    class="flex w-full items-center gap-4 border-b border-gray-100 px-4 py-4 text-left transition last:border-b-0 hover:bg-blue-50"
+                                >
+
+                                    <div
+                                        class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-600"
+                                    >
+                                        {{ getInitial(patient.nama || patient.nama_pasien) }}
+                                    </div>
+
+
+                                    <div class="min-w-0 flex-1">
+
+                                        <p class="font-semibold text-gray-800">
+                                            {{ patient.nama || patient.nama_pasien || '-' }}
+                                        </p>
+
+                                        <div class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+
+                                            <span>
+                                                RM: {{ patient.no_rm || '-' }}
+                                            </span>
+
+                                            <span v-if="patient.nik">
+                                                NIK: {{ patient.nik }}
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <span class="text-gray-400">
+                                        →
+                                    </span>
+
+                                </button>
+
+                            </div>
+
+
+                            <!-- NO RESULT -->
+
+                            <div
+                                v-if="
+                                    patientSearch.length >= 2 &&
+                                    !patientSearchLoading &&
+                                    patientResults.length === 0 &&
+                                    !selectedPatient
+                                "
+                                class="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-5 text-center"
+                            >
+
+                                <div class="text-3xl">
+                                    🔍
+                                </div>
+
+                                <p class="mt-2 font-medium text-gray-700">
+                                    Pasien tidak ditemukan
+                                </p>
+
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Coba gunakan nama atau nomor RM yang berbeda.
+                                </p>
+
+                            </div>
+
+
+                            <!-- SELECTED PATIENT -->
+
+                            <div
+                                v-if="selectedPatient"
+                                class="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4"
+                            >
+
+                                <div class="flex items-center justify-between gap-4">
+
+                                    <div class="flex items-center gap-4">
+
+                                        <div
+                                            class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 font-bold text-white"
+                                        >
+                                            {{ getInitial(getPatientNameFromData(selectedPatient)) }}
+                                        </div>
+
+
+                                        <div>
+
+                                            <p class="font-bold text-gray-800">
+                                                {{ getPatientNameFromData(selectedPatient) }}
+                                            </p>
+
+                                            <div class="mt-1 flex flex-wrap gap-x-4 text-xs text-gray-600">
+
+                                                <span>
+                                                    RM: {{ selectedPatient.no_rm || '-' }}
+                                                </span>
+
+                                                <span v-if="selectedPatient.jenis_kelamin">
+                                                    {{ selectedPatient.jenis_kelamin }}
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <button
+                                        type="button"
+                                        @click="clearSelectedPatient"
+                                        class="rounded-lg bg-white px-3 py-2 text-xs font-medium text-red-600 shadow-sm hover:bg-red-50"
+                                    >
+                                        Ganti Pasien
+                                    </button>
+
+                                </div>
+
+                            </div>
+
                         </div>
 
                     </div>
 
-                    <!-- TANGGAL -->
-                    <div class="md:w-1/2">
-                        <label class="mb-2 block text-sm font-medium text-gray-700">
+
+                    <!-- ================================================= -->
+                    <!-- STEP 2 : KUNJUNGAN -->
+                    <!-- ================================================= -->
+
+                    <div
+                        v-if="selectedPatient"
+                        class="rounded-2xl border border-gray-200 bg-white"
+                    >
+
+                        <div class="border-b bg-gray-50 px-5 py-4">
+
+                            <div class="flex items-center gap-3">
+
+                                <div
+                                    class="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 font-bold text-indigo-600"
+                                >
+                                    2
+                                </div>
+
+                                <div>
+
+                                    <h3 class="font-semibold text-gray-800">
+                                        Pilih Kunjungan
+                                    </h3>
+
+                                    <p class="text-xs text-gray-500">
+                                        Pilih kunjungan pasien untuk resep ini.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="p-5">
+
+                            <!-- LOADING -->
+
+                            <div
+                                v-if="loadingVisits"
+                                class="rounded-xl bg-gray-50 p-8 text-center text-sm text-gray-500"
+                            >
+                                Memuat riwayat kunjungan pasien...
+                            </div>
+
+
+                            <!-- EMPTY -->
+
+                            <div
+                                v-else-if="patientVisits.length === 0"
+                                class="rounded-xl border border-yellow-200 bg-yellow-50 p-5"
+                            >
+
+                                <div class="flex gap-3">
+
+                                    <div class="text-2xl">
+                                        ⚠️
+                                    </div>
+
+                                    <div>
+
+                                        <p class="font-semibold text-yellow-800">
+                                            Belum ada kunjungan
+                                        </p>
+
+                                        <p class="mt-1 text-sm text-yellow-700">
+                                            Pasien ini belum memiliki data pendaftaran yang dapat digunakan untuk resep.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- VISITS -->
+
+                            <div
+                                v-else
+                                class="space-y-3"
+                            >
+
+                                <button
+                                    v-for="visit in patientVisits"
+                                    :key="visit.id"
+                                    type="button"
+                                    @click="selectVisit(visit)"
+                                    class="w-full rounded-xl border p-4 text-left transition"
+                                    :class="
+                                        selectedVisit?.id === visit.id
+                                            ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-100'
+                                            : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                                    "
+                                >
+
+                                    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+
+                                        <div class="flex items-start gap-4">
+
+                                            <div
+                                                class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-gray-100 text-xl"
+                                            >
+                                                🏥
+                                            </div>
+
+
+                                            <div>
+
+                                                <div class="flex flex-wrap items-center gap-2">
+
+                                                    <p class="font-bold text-gray-800">
+                                                        {{ formatDate(visit.tanggal_kunjungan) }}
+                                                    </p>
+
+                                                    <span
+                                                        v-if="visit.no_antrian"
+                                                        class="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600"
+                                                    >
+                                                        {{ visit.no_antrian }}
+                                                    </span>
+
+                                                </div>
+
+
+                                                <p class="mt-1 text-sm text-gray-600">
+                                                    {{ getPoliName(visit) }}
+                                                </p>
+
+
+                                                <p class="mt-1 text-sm text-gray-500">
+                                                    Dr. {{ getDoctorNameFromVisit(visit) }}
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="flex items-center gap-3">
+
+                                            <span
+                                                class="rounded-full px-3 py-1 text-xs font-semibold"
+                                                :class="visitStatusClass(visit.status)"
+                                            >
+                                                {{ visit.status || 'TERDAFTAR' }}
+                                            </span>
+
+
+                                            <span
+                                                v-if="selectedVisit?.id === visit.id"
+                                                class="font-bold text-blue-600"
+                                            >
+                                                ✓
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- DATA KUNJUNGAN TERPILIH -->
+                    <!-- ================================================= -->
+
+                    <div
+                        v-if="selectedVisit"
+                        class="rounded-2xl border border-green-200 bg-green-50 p-5"
+                    >
+
+                        <div class="mb-4 flex items-center gap-3">
+
+                            <div
+                                class="flex h-9 w-9 items-center justify-center rounded-full bg-green-600 font-bold text-white"
+                            >
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <h3 class="font-semibold text-green-800">
+                                    Kunjungan Terpilih
+                                </h3>
+
+                                <p class="text-xs text-green-700">
+                                    Data resep akan dikaitkan dengan kunjungan ini.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+
+                            <div>
+                                <p class="text-xs text-green-700">
+                                    Pasien
+                                </p>
+
+                                <p class="mt-1 font-semibold text-green-900">
+                                    {{ getPatientNameFromData(selectedPatient) }}
+                                </p>
+                            </div>
+
+
+                            <div>
+                                <p class="text-xs text-green-700">
+                                    No. RM
+                                </p>
+
+                                <p class="mt-1 font-semibold text-green-900">
+                                    {{ selectedPatient.no_rm || '-' }}
+                                </p>
+                            </div>
+
+
+                            <div>
+                                <p class="text-xs text-green-700">
+                                    Poli
+                                </p>
+
+                                <p class="mt-1 font-semibold text-green-900">
+                                    {{ getPoliName(selectedVisit) }}
+                                </p>
+                            </div>
+
+
+                            <div>
+                                <p class="text-xs text-green-700">
+                                    Dokter
+                                </p>
+
+                                <p class="mt-1 font-semibold text-green-900">
+                                    Dr. {{ getDoctorNameFromVisit(selectedVisit) }}
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- STEP 3 : TANGGAL -->
+                    <!-- ================================================= -->
+
+                    <div
+                        v-if="selectedVisit"
+                        class="rounded-2xl border border-gray-200 bg-white p-5"
+                    >
+
+                        <h3 class="font-semibold text-gray-800">
                             Tanggal Resep
-                        </label>
+                        </h3>
+
+                        <p class="mt-1 text-xs text-gray-500">
+                            Tanggal pembuatan resep.
+                        </p>
+
 
                         <input
                             v-model="form.tanggal_resep"
                             type="date"
                             required
-                            class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                            class="mt-4 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 md:w-1/2"
                         />
+
                     </div>
 
-                    <!-- OBAT -->
-                    <div class="rounded-xl border border-gray-200">
 
-                        <div class="flex items-center justify-between border-b bg-gray-50 px-5 py-4">
+                    <!-- ================================================= -->
+                    <!-- STEP 4 : OBAT -->
+                    <!-- ================================================= -->
+
+                    <div
+                        v-if="selectedVisit"
+                        class="rounded-2xl border border-gray-200 bg-white"
+                    >
+
+                        <div class="flex flex-col gap-3 border-b bg-gray-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
 
                             <div>
+
                                 <h3 class="font-semibold text-gray-800">
                                     Obat
                                 </h3>
 
                                 <p class="text-xs text-gray-500">
-                                    Tambahkan obat ke dalam resep
+                                    Tambahkan obat yang diresepkan.
                                 </p>
+
                             </div>
+
 
                             <button
                                 type="button"
@@ -324,6 +864,7 @@
 
                         </div>
 
+
                         <div class="space-y-5 p-5">
 
                             <div
@@ -334,9 +875,14 @@
 
                                 <div class="mb-4 flex items-center justify-between">
 
-                                    <h4 class="font-semibold text-gray-700">
-                                        Obat {{ index + 1 }}
-                                    </h4>
+                                    <div>
+
+                                        <h4 class="font-semibold text-gray-700">
+                                            Obat {{ index + 1 }}
+                                        </h4>
+
+                                    </div>
+
 
                                     <button
                                         v-if="form.details.length > 1"
@@ -349,9 +895,11 @@
 
                                 </div>
 
+
                                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 
                                     <!-- OBAT -->
+
                                     <div class="md:col-span-2">
 
                                         <label class="mb-2 block text-sm font-medium text-gray-700">
@@ -363,6 +911,7 @@
                                             required
                                             class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                                         >
+
                                             <option value="">
                                                 Pilih obat
                                             </option>
@@ -372,7 +921,8 @@
                                                 :key="obat.id"
                                                 :value="obat.id"
                                             >
-                                                {{ obat.kode_obat }} -
+                                                {{ obat.kode_obat }}
+                                                -
                                                 {{ obat.nama_obat }}
                                                 (Stok: {{ obat.stok }})
                                             </option>
@@ -381,7 +931,9 @@
 
                                     </div>
 
+
                                     <!-- JUMLAH -->
+
                                     <div>
 
                                         <label class="mb-2 block text-sm font-medium text-gray-700">
@@ -398,7 +950,9 @@
 
                                     </div>
 
+
                                     <!-- DOSIS -->
+
                                     <div>
 
                                         <label class="mb-2 block text-sm font-medium text-gray-700">
@@ -415,7 +969,9 @@
 
                                     </div>
 
-                                    <!-- ATURAN PAKAI -->
+
+                                    <!-- ATURAN -->
+
                                     <div>
 
                                         <label class="mb-2 block text-sm font-medium text-gray-700">
@@ -431,7 +987,9 @@
 
                                     </div>
 
+
                                     <!-- CATATAN -->
+
                                     <div>
 
                                         <label class="mb-2 block text-sm font-medium text-gray-700">
@@ -455,8 +1013,15 @@
 
                     </div>
 
+
+                    <!-- ================================================= -->
                     <!-- CATATAN RESEP -->
-                    <div>
+                    <!-- ================================================= -->
+
+                    <div
+                        v-if="selectedVisit"
+                        class="rounded-2xl border border-gray-200 bg-white p-5"
+                    >
 
                         <label class="mb-2 block text-sm font-medium text-gray-700">
                             Catatan Resep
@@ -471,8 +1036,12 @@
 
                     </div>
 
-                    <!-- BUTTON -->
-                    <div class="flex justify-end gap-3 border-t pt-5">
+
+                    <!-- ================================================= -->
+                    <!-- ACTION -->
+                    <!-- ================================================= -->
+
+                    <div class="sticky bottom-0 flex flex-col-reverse gap-3 border-t bg-white pt-5 sm:flex-row sm:justify-end">
 
                         <button
                             type="button"
@@ -482,7 +1051,9 @@
                             Batal
                         </button>
 
+
                         <button
+                            v-if="selectedVisit"
                             type="submit"
                             :disabled="submitting"
                             class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
@@ -498,6 +1069,7 @@
 
         </div>
 
+
         <!-- ================================================= -->
         <!-- MODAL DETAIL RESEP -->
         <!-- ================================================= -->
@@ -509,9 +1081,12 @@
 
             <div class="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white shadow-xl">
 
+                <!-- HEADER -->
+
                 <div class="flex items-center justify-between border-b px-6 py-5">
 
                     <div>
+
                         <h2 class="text-xl font-bold text-gray-800">
                             Detail Resep
                         </h2>
@@ -519,7 +1094,9 @@
                         <p class="text-sm text-gray-500">
                             {{ selectedResep.no_resep }}
                         </p>
+
                     </div>
+
 
                     <button
                         @click="selectedResep = null"
@@ -530,12 +1107,15 @@
 
                 </div>
 
+
                 <div class="space-y-6 p-6">
 
                     <!-- INFO -->
-                    <div class="grid grid-cols-1 gap-4 rounded-xl bg-gray-50 p-5 md:grid-cols-3">
+
+                    <div class="grid grid-cols-1 gap-4 rounded-xl bg-gray-50 p-5 md:grid-cols-4">
 
                         <div>
+
                             <p class="text-xs text-gray-500">
                                 No. Resep
                             </p>
@@ -543,9 +1123,25 @@
                             <p class="mt-1 font-semibold text-gray-800">
                                 {{ selectedResep.no_resep }}
                             </p>
+
                         </div>
 
+
                         <div>
+
+                            <p class="text-xs text-gray-500">
+                                Pasien
+                            </p>
+
+                            <p class="mt-1 font-semibold text-gray-800">
+                                {{ getPatientName(selectedResep) }}
+                            </p>
+
+                        </div>
+
+
+                        <div>
+
                             <p class="text-xs text-gray-500">
                                 Dokter
                             </p>
@@ -553,9 +1149,12 @@
                             <p class="mt-1 font-semibold text-gray-800">
                                 {{ getDoctorName(selectedResep) }}
                             </p>
+
                         </div>
 
+
                         <div>
+
                             <p class="text-xs text-gray-500">
                                 Status
                             </p>
@@ -566,77 +1165,90 @@
                             >
                                 {{ selectedResep.status }}
                             </span>
+
                         </div>
 
                     </div>
 
+
                     <!-- DETAIL OBAT -->
+
                     <div>
 
                         <h3 class="mb-3 font-semibold text-gray-800">
                             Daftar Obat
                         </h3>
 
+
                         <div class="overflow-hidden rounded-xl border">
 
-                            <table class="w-full text-left text-sm">
+                            <div class="overflow-x-auto">
 
-                                <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                                <table class="w-full text-left text-sm">
 
-                                    <tr>
-                                        <th class="px-4 py-3">
-                                            Obat
-                                        </th>
+                                    <thead class="bg-gray-50 text-xs uppercase text-gray-500">
 
-                                        <th class="px-4 py-3">
-                                            Jumlah
-                                        </th>
+                                        <tr>
 
-                                        <th class="px-4 py-3">
-                                            Dosis
-                                        </th>
+                                            <th class="px-4 py-3">
+                                                Obat
+                                            </th>
 
-                                        <th class="px-4 py-3">
-                                            Aturan Pakai
-                                        </th>
-                                    </tr>
+                                            <th class="px-4 py-3">
+                                                Jumlah
+                                            </th>
 
-                                </thead>
+                                            <th class="px-4 py-3">
+                                                Dosis
+                                            </th>
 
-                                <tbody class="divide-y">
+                                            <th class="px-4 py-3">
+                                                Aturan Pakai
+                                            </th>
 
-                                    <tr
-                                        v-for="detail in selectedResep.details"
-                                        :key="detail.id"
-                                    >
+                                        </tr>
 
-                                        <td class="px-4 py-4 font-medium text-gray-800">
-                                            {{ detail.obat?.nama_obat ?? '-' }}
-                                        </td>
+                                    </thead>
 
-                                        <td class="px-4 py-4 text-gray-600">
-                                            {{ detail.jumlah }}
-                                        </td>
 
-                                        <td class="px-4 py-4 text-gray-600">
-                                            {{ detail.dosis }}
-                                        </td>
+                                    <tbody class="divide-y">
 
-                                        <td class="px-4 py-4 text-gray-600">
-                                            {{ detail.aturan_pakai ?? '-' }}
-                                        </td>
+                                        <tr
+                                            v-for="detail in selectedResep.details"
+                                            :key="detail.id"
+                                        >
 
-                                    </tr>
+                                            <td class="px-4 py-4 font-medium text-gray-800">
+                                                {{ detail.obat?.nama_obat ?? '-' }}
+                                            </td>
 
-                                </tbody>
+                                            <td class="px-4 py-4 text-gray-600">
+                                                {{ detail.jumlah }}
+                                            </td>
 
-                            </table>
+                                            <td class="px-4 py-4 text-gray-600">
+                                                {{ detail.dosis }}
+                                            </td>
+
+                                            <td class="px-4 py-4 text-gray-600">
+                                                {{ detail.aturan_pakai ?? '-' }}
+                                            </td>
+
+                                        </tr>
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
 
                         </div>
 
                     </div>
 
+
                     <!-- CATATAN -->
+
                     <div
                         v-if="selectedResep.catatan"
                         class="rounded-xl bg-yellow-50 p-4"
@@ -661,33 +1273,73 @@
     </div>
 </template>
 
+
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+
+import {
+    ref,
+    computed,
+    onMounted,
+    watch
+} from 'vue'
+
 import axios from 'axios'
+
 
 /*
 |--------------------------------------------------------------------------
-| State
+| STATE
 |--------------------------------------------------------------------------
 */
 
 const reseps = ref([])
-const pendaftarans = ref([])
-const dokters = ref([])
+
 const obats = ref([])
 
 const loading = ref(false)
+
 const submitting = ref(false)
 
 const successMessage = ref('')
+
 const errorMessage = ref('')
 
 const showCreateModal = ref(false)
+
 const selectedResep = ref(null)
+
 
 /*
 |--------------------------------------------------------------------------
-| Form
+| PATIENT SEARCH
+|--------------------------------------------------------------------------
+*/
+
+const patientSearch = ref('')
+
+const patientResults = ref([])
+
+const patientSearchLoading = ref(false)
+
+const selectedPatient = ref(null)
+
+
+/*
+|--------------------------------------------------------------------------
+| VISITS
+|--------------------------------------------------------------------------
+*/
+
+const patientVisits = ref([])
+
+const loadingVisits = ref(false)
+
+const selectedVisit = ref(null)
+
+
+/*
+|--------------------------------------------------------------------------
+| FORM
 |--------------------------------------------------------------------------
 */
 
@@ -701,33 +1353,49 @@ const form = ref({
     ]
 })
 
+
 /*
 |--------------------------------------------------------------------------
-| Computed
+| COMPUTED
 |--------------------------------------------------------------------------
 */
 
 const activeObats = computed(() => {
-    return obats.value.filter(obat => obat.is_active)
+
+    return obats.value.filter(
+        obat => obat.is_active
+    )
+
 })
+
 
 /*
 |--------------------------------------------------------------------------
-| Helpers
+| HELPERS
 |--------------------------------------------------------------------------
 */
 
 function getToday() {
+
     const date = new Date()
 
     const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
+
+    const month =
+        String(date.getMonth() + 1)
+            .padStart(2, '0')
+
+    const day =
+        String(date.getDate())
+            .padStart(2, '0')
 
     return `${year}-${month}-${day}`
+
 }
 
+
 function createEmptyDetail() {
+
     return {
         obat_id: '',
         jumlah: 1,
@@ -735,9 +1403,59 @@ function createEmptyDetail() {
         aturan_pakai: '',
         catatan: ''
     }
+
 }
 
+
+function getInitial(name) {
+
+    if (!name) {
+        return 'P'
+    }
+
+    return name
+        .charAt(0)
+        .toUpperCase()
+
+}
+
+
+function getPatientNameFromData(patient) {
+
+    return (
+        patient?.nama ??
+        patient?.nama_pasien ??
+        patient?.name ??
+        '-'
+    )
+
+}
+
+
+function getPatientName(resep) {
+
+    return (
+        resep?.pendaftaran?.pasien?.nama ??
+        resep?.pendaftaran?.pasien?.nama_pasien ??
+        resep?.pendaftaran?.nama_pasien ??
+        '-'
+    )
+
+}
+
+
+function getPatientRM(resep) {
+
+    return (
+        resep?.pendaftaran?.pasien?.no_rm ??
+        '-'
+    )
+
+}
+
+
 function getDoctorName(resep) {
+
     if (!resep?.dokter) {
         return '-'
     }
@@ -748,56 +1466,55 @@ function getDoctorName(resep) {
         resep.dokter.name ??
         '-'
     )
+
 }
 
-function getDoctorNameFromData(dokter) {
+
+function getDoctorNameFromVisit(visit) {
+
     return (
-        dokter.nama_dokter ??
-        dokter.nama ??
-        dokter.name ??
+        visit?.dokter?.nama_dokter ??
+        visit?.dokter?.nama ??
+        visit?.dokter?.name ??
         '-'
     )
+
 }
 
-function getRegistrationLabel(pendaftaran) {
-    const pasien =
-        pendaftaran.pasien?.nama ??
-        pendaftaran.pasien?.nama_pasien ??
-        pendaftaran.nama_pasien ??
-        `Pendaftaran #${pendaftaran.id}`
 
-    return `#${pendaftaran.id} - ${pasien}`
+function getPoliName(visit) {
+
+    return (
+        visit?.poli?.nama ??
+        visit?.poli?.nama_poli ??
+        '-'
+    )
+
 }
+
 
 function formatDate(date) {
+
     if (!date) {
         return '-'
     }
 
-    return new Date(date).toLocaleDateString('id-ID', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    })
+    return new Date(date).toLocaleDateString(
+        'id-ID',
+        {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        }
+    )
+
 }
 
-function getPatientName(resep) {
-    return (
-        resep?.pendaftaran?.pasien?.nama ??
-        resep?.pendaftaran?.pasien?.nama_pasien ??
-        '-'
-    )
-}
-
-function getPatientRM(resep) {
-    return (
-        resep?.pendaftaran?.pasien?.no_rm ??
-        '-'
-    )
-}
 
 function statusClass(status) {
+
     switch (status) {
+
         case 'MENUNGGU':
             return 'bg-yellow-100 text-yellow-700'
 
@@ -812,85 +1529,410 @@ function statusClass(status) {
 
         default:
             return 'bg-gray-100 text-gray-700'
+
     }
+
 }
+
+
+function visitStatusClass(status) {
+
+    switch (status) {
+
+        case 'MENUNGGU':
+            return 'bg-yellow-100 text-yellow-700'
+
+        case 'DIPERIKSA':
+            return 'bg-blue-100 text-blue-700'
+
+        case 'SELESAI':
+            return 'bg-green-100 text-green-700'
+
+        case 'BATAL':
+            return 'bg-red-100 text-red-700'
+
+        default:
+            return 'bg-gray-100 text-gray-700'
+
+    }
+
+}
+
 
 /*
 |--------------------------------------------------------------------------
-| Modal
-|--------------------------------------------------------------------------
-*/
-
-function openCreateModal() {
-    resetForm()
-
-    showCreateModal.value = true
-
-    loadFormData()
-}
-
-function closeCreateModal() {
-    showCreateModal.value = false
-}
-
-/*
-|--------------------------------------------------------------------------
-| Form Reset
+| RESET FORM
 |--------------------------------------------------------------------------
 */
 
 function resetForm() {
+
     form.value = {
+
         pendaftaran_id: '',
+
         dokter_id: '',
+
         tanggal_resep: getToday(),
+
         catatan: '',
+
         details: [
             createEmptyDetail()
         ]
+
     }
+
+    patientSearch.value = ''
+
+    patientResults.value = []
+
+    selectedPatient.value = null
+
+    patientVisits.value = []
+
+    selectedVisit.value = null
 
     errorMessage.value = ''
+
 }
+
 
 /*
 |--------------------------------------------------------------------------
-| Tambah / Hapus Obat
+| MODAL
 |--------------------------------------------------------------------------
 */
 
-function addDetail() {
-    form.value.details.push(
-        createEmptyDetail()
-    )
+function openCreateModal() {
+
+    resetForm()
+
+    showCreateModal.value = true
+
+    loadObats()
+
 }
 
-function removeDetail(index) {
-    if (form.value.details.length <= 1) {
-        return
+
+function closeCreateModal() {
+
+    showCreateModal.value = false
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| SEARCH PASIEN
+|--------------------------------------------------------------------------
+*/
+
+let searchTimer = null
+
+
+watch(
+    patientSearch,
+    (value) => {
+
+        clearTimeout(searchTimer)
+
+        patientResults.value = []
+
+        if (!value || value.trim().length < 2) {
+            return
+        }
+
+        searchTimer = setTimeout(
+            () => {
+                searchPatients(value.trim())
+            },
+            350
+        )
+
     }
+)
 
-    form.value.details.splice(index, 1)
-}
 
-/*
-|--------------------------------------------------------------------------
-| API - Load Resep
-|--------------------------------------------------------------------------
-*/
+async function searchPatients(keyword) {
 
-async function loadReseps() {
-    loading.value = true
+    patientSearchLoading.value = true
 
     try {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Endpoint pasien
+        |--------------------------------------------------------------------------
+        |
+        | Endpoint ini menggunakan API pasien yang sudah ada.
+        |
+        */
+
         const response = await axios.get(
-            '/api/reseps',
+            '/api/pasiens',
+            {
+                params: {
+                    search: keyword
+                },
+                withCredentials: true
+            }
+        )
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Kompatibel dengan beberapa bentuk response
+        |--------------------------------------------------------------------------
+        */
+
+        patientResults.value =
+            response.data.pasiens ??
+            response.data.data ??
+            []
+
+    } catch (error) {
+
+        console.error(
+            'Gagal mencari pasien:',
+            error
+        )
+
+        patientResults.value = []
+
+        errorMessage.value =
+            error.response?.data?.message ??
+            'Gagal mencari pasien.'
+
+    } finally {
+
+        patientSearchLoading.value = false
+
+    }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| PILIH PASIEN
+|--------------------------------------------------------------------------
+*/
+
+async function selectPatient(patient) {
+
+    selectedPatient.value = patient
+
+    patientSearch.value =
+        getPatientNameFromData(patient)
+
+    patientResults.value = []
+
+    selectedVisit.value = null
+
+    patientVisits.value = []
+
+    form.value.pendaftaran_id = ''
+
+    form.value.dokter_id = ''
+
+    await loadPatientVisits(
+        patient.id
+    )
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| GANTI PASIEN
+|--------------------------------------------------------------------------
+*/
+
+function clearSelectedPatient() {
+
+    selectedPatient.value = null
+
+    selectedVisit.value = null
+
+    patientVisits.value = []
+
+    patientSearch.value = ''
+
+    patientResults.value = []
+
+    form.value.pendaftaran_id = ''
+
+    form.value.dokter_id = ''
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| LOAD KUNJUNGAN PASIEN
+|--------------------------------------------------------------------------
+*/
+
+async function loadPatientVisits(pasienId) {
+
+    loadingVisits.value = true
+
+    try {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ambil seluruh pendaftaran
+        |--------------------------------------------------------------------------
+        |
+        | Untuk sementara kita gunakan endpoint yang sudah kamu punya.
+        |
+        */
+
+        const response = await axios.get(
+            '/api/pendaftarans',
             {
                 withCredentials: true
             }
         )
 
-        reseps.value = response.data.data ?? []
+
+        const allPendaftarans =
+            response.data.pendaftarans ??
+            response.data.data ??
+            []
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Filter berdasarkan pasien
+        |--------------------------------------------------------------------------
+        */
+
+        patientVisits.value =
+            allPendaftarans
+                .filter(
+                    pendaftaran => {
+
+                        const currentPasienId =
+                            pendaftaran.pasien_id ??
+                            pendaftaran.pasien?.id
+
+                        return String(currentPasienId) ===
+                            String(pasienId)
+
+                    }
+                )
+                .sort(
+                    (a, b) => {
+
+                        return new Date(
+                            b.tanggal_kunjungan
+                        ) -
+                        new Date(
+                            a.tanggal_kunjungan
+                        )
+
+                    }
+                )
+
+    } catch (error) {
+
+        console.error(
+            'Gagal mengambil kunjungan pasien:',
+            error
+        )
+
+        patientVisits.value = []
+
+        errorMessage.value =
+            error.response?.data?.message ??
+            'Gagal mengambil kunjungan pasien.'
+
+    } finally {
+
+        loadingVisits.value = false
+
+    }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| PILIH KUNJUNGAN
+|--------------------------------------------------------------------------
+*/
+
+function selectVisit(visit) {
+
+    selectedVisit.value = visit
+
+    form.value.pendaftaran_id =
+        visit.id
+
+    form.value.dokter_id =
+        visit.dokter_id ??
+        visit.dokter?.id ??
+        ''
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| TAMBAH / HAPUS OBAT
+|--------------------------------------------------------------------------
+*/
+
+function addDetail() {
+
+    form.value.details.push(
+        createEmptyDetail()
+    )
+
+}
+
+
+function removeDetail(index) {
+
+    if (
+        form.value.details.length <= 1
+    ) {
+        return
+    }
+
+    form.value.details.splice(
+        index,
+        1
+    )
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| LOAD RESEP
+|--------------------------------------------------------------------------
+*/
+
+async function loadReseps() {
+
+    loading.value = true
+
+    try {
+
+        const response =
+            await axios.get(
+                '/api/reseps',
+                {
+                    withCredentials: true
+                }
+            )
+
+        reseps.value =
+            response.data.data ??
+            []
 
     } catch (error) {
 
@@ -901,56 +1943,35 @@ async function loadReseps() {
             'Gagal mengambil data resep.'
 
     } finally {
+
         loading.value = false
+
     }
+
 }
+
 
 /*
 |--------------------------------------------------------------------------
-| API - Load Form Data
+| LOAD OBAT
 |--------------------------------------------------------------------------
 */
 
-async function loadFormData() {
+async function loadObats() {
+
     try {
 
-        const [
-            pendaftaranResponse,
-            dokterResponse,
-            obatResponse
-        ] = await Promise.all([
-            axios.get(
-                '/api/pendaftarans',
-                {
-                    withCredentials: true
-                }
-            ),
-
-            axios.get(
-                '/api/dokters',
-                {
-                    withCredentials: true
-                }
-            ),
-
-            axios.get(
+        const response =
+            await axios.get(
                 '/api/obats',
                 {
                     withCredentials: true
                 }
             )
-        ])
-
-        pendaftarans.value =
-            pendaftaranResponse.data.pendaftarans ??
-            []
-
-        dokters.value =
-            dokterResponse.data.dokters ??
-            []
 
         obats.value =
-            obatResponse.data.obats ??
+            response.data.obats ??
+            response.data.data ??
             []
 
     } catch (error) {
@@ -959,41 +1980,114 @@ async function loadFormData() {
 
         errorMessage.value =
             error.response?.data?.message ??
-            'Gagal mengambil data form.'
+            'Gagal mengambil data obat.'
 
     }
+
 }
+
 
 /*
 |--------------------------------------------------------------------------
-| API - Submit Resep
+| SUBMIT RESEP
 |--------------------------------------------------------------------------
 */
 
 async function submitResep() {
-    submitting.value = true
+
     errorMessage.value = ''
+
     successMessage.value = ''
+
+
+    if (!selectedPatient.value) {
+
+        errorMessage.value =
+            'Silakan pilih pasien terlebih dahulu.'
+
+        return
+
+    }
+
+
+    if (!selectedVisit.value) {
+
+        errorMessage.value =
+            'Silakan pilih kunjungan pasien terlebih dahulu.'
+
+        return
+
+    }
+
+
+    if (!form.value.pendaftaran_id) {
+
+        errorMessage.value =
+            'Pendaftaran pasien tidak ditemukan.'
+
+        return
+
+    }
+
+
+    if (!form.value.dokter_id) {
+
+        errorMessage.value =
+            'Dokter dari kunjungan tidak ditemukan.'
+
+        return
+
+    }
+
+
+    if (
+        !form.value.details.length
+    ) {
+
+        errorMessage.value =
+            'Minimal harus ada satu obat.'
+
+        return
+
+    }
+
+
+    submitting.value = true
+
 
     try {
 
-        const response = await axios.post(
-            '/api/reseps',
-            {
-                pendaftaran_id: form.value.pendaftaran_id,
-                dokter_id: form.value.dokter_id,
-                tanggal_resep: form.value.tanggal_resep,
-                catatan: form.value.catatan,
-                details: form.value.details
-            },
-            {
-                withCredentials: true
-            }
-        )
+        const response =
+            await axios.post(
+                '/api/reseps',
+                {
+
+                    pendaftaran_id:
+                        form.value.pendaftaran_id,
+
+                    dokter_id:
+                        form.value.dokter_id,
+
+                    tanggal_resep:
+                        form.value.tanggal_resep,
+
+                    catatan:
+                        form.value.catatan,
+
+                    details:
+                        form.value.details
+
+                },
+                {
+                    withCredentials: true
+                }
+            )
+
 
         successMessage.value =
             response.data.message ??
             'Resep berhasil dibuat.'
+
 
         closeCreateModal()
 
@@ -1001,9 +2095,15 @@ async function submitResep() {
 
     } catch (error) {
 
-        console.error(error)
+        console.error(
+            'Gagal membuat resep:',
+            error
+        )
 
-        if (error.response?.data?.errors) {
+
+        if (
+            error.response?.data?.errors
+        ) {
 
             const errors =
                 error.response.data.errors
@@ -1021,28 +2121,35 @@ async function submitResep() {
             errorMessage.value =
                 error.response?.data?.message ??
                 'Gagal membuat resep.'
+
         }
 
     } finally {
+
         submitting.value = false
+
     }
+
 }
+
 
 /*
 |--------------------------------------------------------------------------
-| Detail Resep
+| DETAIL RESEP
 |--------------------------------------------------------------------------
 */
 
 async function viewResep(resep) {
+
     try {
 
-        const response = await axios.get(
-            `/api/reseps/${resep.id}`,
-            {
-                withCredentials: true
-            }
-        )
+        const response =
+            await axios.get(
+                `/api/reseps/${resep.id}`,
+                {
+                    withCredentials: true
+                }
+            )
 
         selectedResep.value =
             response.data.data
@@ -1054,22 +2161,28 @@ async function viewResep(resep) {
         errorMessage.value =
             error.response?.data?.message ??
             'Gagal mengambil detail resep.'
+
     }
+
 }
+
 
 /*
 |--------------------------------------------------------------------------
-| Proses Resep
+| PROSES RESEP
 |--------------------------------------------------------------------------
 */
 
 async function processResep(resep) {
 
-    if (!confirm(
-        `Proses resep ${resep.no_resep}?`
-    )) {
+    if (
+        !confirm(
+            `Proses resep ${resep.no_resep}?`
+        )
+    ) {
         return
     }
+
 
     try {
 
@@ -1083,8 +2196,10 @@ async function processResep(resep) {
             }
         )
 
+
         successMessage.value =
             'Resep berhasil diproses.'
+
 
         await loadReseps()
 
@@ -1095,14 +2210,31 @@ async function processResep(resep) {
         errorMessage.value =
             error.response?.data?.message ??
             'Gagal memproses resep.'
+
     }
+
 }
+
+
+/*
+|--------------------------------------------------------------------------
+| DELETE RESEP
+|--------------------------------------------------------------------------
+*/
+
 async function deleteResep(resep) {
-    if (!confirm(`Apakah Anda yakin ingin menghapus resep ${resep.no_resep}?`)) {
+
+    if (
+        !confirm(
+            `Apakah Anda yakin ingin menghapus resep ${resep.no_resep}?`
+        )
+    ) {
         return
     }
 
+
     try {
+
         await axios.delete(
             `/api/reseps/${resep.id}`,
             {
@@ -1110,26 +2242,36 @@ async function deleteResep(resep) {
             }
         )
 
-        successMessage.value = 'Resep berhasil dihapus.'
+
+        successMessage.value =
+            'Resep berhasil dihapus.'
+
 
         await loadReseps()
 
     } catch (error) {
+
         console.error(error)
 
         errorMessage.value =
             error.response?.data?.message ??
             'Gagal menghapus resep.'
+
     }
+
 }
+
 
 /*
 |--------------------------------------------------------------------------
-| Initial Load
+| INITIAL LOAD
 |--------------------------------------------------------------------------
 */
 
 onMounted(() => {
+
     loadReseps()
+
 })
 </script>
+```

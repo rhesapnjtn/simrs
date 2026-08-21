@@ -33,10 +33,10 @@ import RiwayatPasien from '../pages/RiwayatPasien.vue';
 
 import ObatManagement from '../pages/ObatManagement.vue';
 import ResepPage from '../pages/ResepPage.vue';
-
+import LabPemeriksaan from '../pages/LabPemeriksaan.vue'
 import Apotek from '../pages/Apotek.vue';
 import DokterRiwayatPasien from '../pages/DokterRiwayatPasien.vue';
-
+import Laboratorium from '../pages/Laboratorium.vue';
 
 const routes = [
 
@@ -420,6 +420,22 @@ const routes = [
     meta: {
         requiresAuth: true
     }
+},
+{
+    path: '/lab-pemeriksaan',
+    name: 'lab-pemeriksaan',
+    component: LabPemeriksaan,
+    meta: {
+        requiresAuth: true,
+    },
+},
+{
+    path: '/laboratorium',
+    name: 'laboratorium',
+    component: Laboratorium,
+    meta: {
+        requiresAuth: true,
+    },
 },
 
 ];
