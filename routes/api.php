@@ -72,17 +72,13 @@ Route::middleware('web')->group(function () {
         | LABORATORIUM - MASTER PEMERIKSAAN AKTIF
         |--------------------------------------------------------------------------
         |
-        | PENTING:
-        | Route /active harus berada sebelum:
-        |
-        | /lab-pemeriksaans/{labPemeriksaan}
-        |
-        | agar "active" tidak dianggap sebagai ID pemeriksaan.
-        |
-        | Bisa digunakan oleh:
+        | Digunakan oleh:
         | - SUPER_ADMIN
+        | - LABORATORIUM
         | - DOKTER
-        | - PETUGAS LAB
+        |
+        | Route ini diletakkan sebelum:
+        | /lab-pemeriksaans/{labPemeriksaan}
         |
         */
 
@@ -90,7 +86,7 @@ Route::middleware('web')->group(function () {
             '/lab-pemeriksaans/active',
             [LabPemeriksaanController::class, 'active']
         );
-    
+
 
         /*
         |--------------------------------------------------------------------------
@@ -238,41 +234,48 @@ Route::middleware('web')->group(function () {
                 [DokterController::class, 'polis']
             );
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | MASTER PEMERIKSAAN LABORATORIUM
-            |--------------------------------------------------------------------------
-            |
-            | CRUD hanya untuk SUPER_ADMIN.
-            |
-            */
-
-            Route::get(
-                '/lab-pemeriksaans',
-                [LabPemeriksaanController::class, 'index']
-            );
-
-            Route::post(
-                '/lab-pemeriksaans',
-                [LabPemeriksaanController::class, 'store']
-            );
-
-            Route::get(
-                '/lab-pemeriksaans/{labPemeriksaan}',
-                [LabPemeriksaanController::class, 'show']
-            );
-
-            Route::put(
-                '/lab-pemeriksaans/{labPemeriksaan}',
-                [LabPemeriksaanController::class, 'update']
-            );
-
-            Route::delete(
-                '/lab-pemeriksaans/{labPemeriksaan}',
-                [LabPemeriksaanController::class, 'destroy']
-            );
         });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | LABORATORIUM - MASTER PEMERIKSAAN
+        |--------------------------------------------------------------------------
+        |
+        | Bisa digunakan oleh:
+        |
+        | - SUPER_ADMIN
+        | - LABORATORIUM
+        |
+        | Authorization dilakukan di:
+        | LabPemeriksaanController
+        |
+        */
+
+        Route::get(
+            '/lab-pemeriksaans',
+            [LabPemeriksaanController::class, 'index']
+        );
+
+        Route::post(
+            '/lab-pemeriksaans',
+            [LabPemeriksaanController::class, 'store']
+        );
+
+        Route::get(
+            '/lab-pemeriksaans/{labPemeriksaan}',
+            [LabPemeriksaanController::class, 'show']
+        );
+
+        Route::put(
+            '/lab-pemeriksaans/{labPemeriksaan}',
+            [LabPemeriksaanController::class, 'update']
+        );
+
+        Route::delete(
+            '/lab-pemeriksaans/{labPemeriksaan}',
+            [LabPemeriksaanController::class, 'destroy']
+        );
 
 
         /*
@@ -533,15 +536,24 @@ Route::middleware('web')->group(function () {
             '/lab-hasil/{hasil}/verifikasi',
             [LabPermintaanController::class, 'verifikasiHasil']
         );
-        /*
-|--------------------------------------------------------------------------
-| LABORATORIUM - CETAK HASIL
-|--------------------------------------------------------------------------
-*/
 
-Route::get(
-    '/lab-permintaans/{labPermintaan}/cetak',
-    [LabHasilPdfController::class, 'cetak']
-);
+
+        /*
+        |--------------------------------------------------------------------------
+        | LABORATORIUM - CETAK HASIL
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/lab-permintaans/{labPermintaan}/cetak',
+            [LabHasilPdfController::class, 'cetak']
+        );
+
+        Route::get(
+            '/pendaftarans/{pendaftaran}/hasil-lab',
+            [LabPermintaanController::class, 'hasilLabPendaftaran']
+        );
+
     });
+
 });

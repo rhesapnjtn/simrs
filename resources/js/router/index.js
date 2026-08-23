@@ -1,10 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import axios from 'axios';
 
-// Layout
+// =====================================================
+// LAYOUT
+// =====================================================
+
 import AppLayout from '../layouts/AppLayout.vue';
 
-// Pages
+// =====================================================
+// PAGES
+// =====================================================
+
 import Login from '../pages/Login.vue';
 import Dashboard from '../pages/Dashboard.vue';
 
@@ -33,10 +39,17 @@ import RiwayatPasien from '../pages/RiwayatPasien.vue';
 
 import ObatManagement from '../pages/ObatManagement.vue';
 import ResepPage from '../pages/ResepPage.vue';
-import LabPemeriksaan from '../pages/LabPemeriksaan.vue'
+
+import LabPemeriksaan from '../pages/LabPemeriksaan.vue';
+import Laboratorium from '../pages/Laboratorium.vue';
+
 import Apotek from '../pages/Apotek.vue';
 import DokterRiwayatPasien from '../pages/DokterRiwayatPasien.vue';
-import Laboratorium from '../pages/Laboratorium.vue';
+
+
+// =====================================================
+// ROUTES
+// =====================================================
 
 const routes = [
 
@@ -48,11 +61,16 @@ const routes = [
         path: '/login',
         name: 'login',
         component: Login,
+
+        meta: {
+            guestOnly: true,
+        },
     },
 
 
     // =====================================================
     // APP LAYOUT
+    // SEMUA HALAMAN SISTEM ADA DI DALAM SINI
     // =====================================================
 
     {
@@ -65,9 +83,9 @@ const routes = [
 
         children: [
 
-            // =====================================================
+            // =================================================
             // DASHBOARD
-            // =====================================================
+            // =================================================
 
             {
                 path: 'dashboard',
@@ -80,9 +98,9 @@ const routes = [
             },
 
 
-            // =====================================================
+            // =================================================
             // USERS
-            // =====================================================
+            // =================================================
 
             {
                 path: 'users',
@@ -90,7 +108,9 @@ const routes = [
                 component: Users,
 
                 meta: {
-                    roles: ['SUPER_ADMIN'],
+                    roles: [
+                        'SUPER_ADMIN',
+                    ],
                 },
             },
 
@@ -100,7 +120,9 @@ const routes = [
                 component: CreateUser,
 
                 meta: {
-                    roles: ['SUPER_ADMIN'],
+                    roles: [
+                        'SUPER_ADMIN',
+                    ],
                 },
             },
 
@@ -110,14 +132,16 @@ const routes = [
                 component: EditUser,
 
                 meta: {
-                    roles: ['SUPER_ADMIN'],
+                    roles: [
+                        'SUPER_ADMIN',
+                    ],
                 },
             },
 
 
-            // =====================================================
+            // =================================================
             // POLI
-            // =====================================================
+            // =================================================
 
             {
                 path: 'polis',
@@ -127,7 +151,7 @@ const routes = [
                 meta: {
                     roles: [
                         'SUPER_ADMIN',
-                        'ADMIN'
+                        'ADMIN',
                     ],
                 },
             },
@@ -140,7 +164,7 @@ const routes = [
                 meta: {
                     roles: [
                         'SUPER_ADMIN',
-                        'ADMIN'
+                        'ADMIN',
                     ],
                 },
             },
@@ -153,15 +177,15 @@ const routes = [
                 meta: {
                     roles: [
                         'SUPER_ADMIN',
-                        'ADMIN'
+                        'ADMIN',
                     ],
                 },
             },
 
 
-            // =====================================================
+            // =================================================
             // DOKTER
-            // =====================================================
+            // =================================================
 
             {
                 path: 'dokters',
@@ -171,7 +195,7 @@ const routes = [
                 meta: {
                     roles: [
                         'SUPER_ADMIN',
-                        'ADMIN'
+                        'ADMIN',
                     ],
                 },
             },
@@ -184,7 +208,7 @@ const routes = [
                 meta: {
                     roles: [
                         'SUPER_ADMIN',
-                        'ADMIN'
+                        'ADMIN',
                     ],
                 },
             },
@@ -197,15 +221,15 @@ const routes = [
                 meta: {
                     roles: [
                         'SUPER_ADMIN',
-                        'ADMIN'
+                        'ADMIN',
                     ],
                 },
             },
 
 
-            // =====================================================
+            // =================================================
             // PASIEN
-            // =====================================================
+            // =================================================
 
             {
                 path: 'pasiens',
@@ -217,7 +241,8 @@ const routes = [
                         'SUPER_ADMIN',
                         'ADMIN',
                         'DOKTER',
-                        'PERAWAT'
+                        'PERAWAT',
+                        'LABORATORIUM',
                     ],
                 },
             },
@@ -230,7 +255,7 @@ const routes = [
                 meta: {
                     roles: [
                         'SUPER_ADMIN',
-                        'ADMIN'
+                        'ADMIN',
                     ],
                 },
             },
@@ -243,15 +268,15 @@ const routes = [
                 meta: {
                     roles: [
                         'SUPER_ADMIN',
-                        'ADMIN'
+                        'ADMIN',
                     ],
                 },
             },
 
 
-            // =====================================================
+            // =================================================
             // PENDAFTARAN
-            // =====================================================
+            // =================================================
 
             {
                 path: 'pendaftaran',
@@ -261,15 +286,15 @@ const routes = [
                 meta: {
                     roles: [
                         'SUPER_ADMIN',
-                        'ADMIN'
+                        'ADMIN',
                     ],
                 },
             },
 
 
-            // =====================================================
+            // =================================================
             // ANTRIAN
-            // =====================================================
+            // =================================================
 
             {
                 path: 'antrian',
@@ -281,49 +306,50 @@ const routes = [
                         'SUPER_ADMIN',
                         'ADMIN',
                         'DOKTER',
-                        'PERAWAT'
+                        'PERAWAT',
                     ],
                 },
             },
 
 
-  // =====================================================
-// PEMERIKSAAN
-// =====================================================
+            // =================================================
+            // PEMERIKSAAN
+            // =================================================
 
-{
-    path: 'pemeriksaan',
-    name: 'pemeriksaan.index',
-    component: PemeriksaanPage,
+            {
+                path: 'pemeriksaan',
+                name: 'pemeriksaan.index',
+                component: PemeriksaanPage,
 
-    meta: {
-        roles: [
-            'SUPER_ADMIN',
-            'DOKTER',
-            'PERAWAT'
-        ],
-    },
-},
+                meta: {
+                    roles: [
+                        'SUPER_ADMIN',
+                        'DOKTER',
+                        'PERAWAT',
+                    ],
+                },
+            },
 
-{
-    path: 'pendaftarans/:id/pemeriksaan',
-    name: 'pemeriksaan.detail',
-    component: PemeriksaanPage,
+            {
+                path: 'pendaftarans/:id/pemeriksaan',
+                name: 'pemeriksaan.detail',
+                component: PemeriksaanPage,
 
-    props: true,
+                props: true,
 
-    meta: {
-        roles: [
-            'SUPER_ADMIN',
-            'DOKTER',
-            'PERAWAT'
-        ],
-    },
-},
+                meta: {
+                    roles: [
+                        'SUPER_ADMIN',
+                        'DOKTER',
+                        'PERAWAT',
+                    ],
+                },
+            },
 
-            // =====================================================
+
+            // =================================================
             // RIWAYAT PEMERIKSAAN
-            // =====================================================
+            // =================================================
 
             {
                 path: 'pasien/:pasienId/riwayat-pemeriksaan',
@@ -334,7 +360,21 @@ const routes = [
                     roles: [
                         'SUPER_ADMIN',
                         'DOKTER',
-                        'PERAWAT'
+                        'PERAWAT',
+                    ],
+                },
+            },
+
+            {
+                path: 'riwayat-pemeriksaan',
+                name: 'riwayat-pemeriksaan',
+                component: RiwayatPemeriksaan,
+
+                meta: {
+                    roles: [
+                        'SUPER_ADMIN',
+                        'DOKTER',
+                        'PERAWAT',
                     ],
                 },
             },
@@ -348,15 +388,15 @@ const routes = [
                     roles: [
                         'SUPER_ADMIN',
                         'DOKTER',
-                        'PERAWAT'
+                        'PERAWAT',
                     ],
                 },
             },
 
 
-            // =====================================================
+            // =================================================
             // OBAT
-            // =====================================================
+            // =================================================
 
             {
                 path: 'obat',
@@ -366,15 +406,15 @@ const routes = [
                 meta: {
                     roles: [
                         'SUPER_ADMIN',
-                        'FARMASI'
+                        'FARMASI',
                     ],
                 },
             },
 
 
-            // =====================================================
+            // =================================================
             // RESEP
-            // =====================================================
+            // =================================================
 
             {
                 path: 'resep',
@@ -384,15 +424,15 @@ const routes = [
                 meta: {
                     roles: [
                         'SUPER_ADMIN',
-                        'DOKTER'
+                        'DOKTER',
                     ],
                 },
             },
 
 
-            // =====================================================
+            // =================================================
             // APOTEK
-            // =====================================================
+            // =================================================
 
             {
                 path: 'apotek',
@@ -402,51 +442,83 @@ const routes = [
                 meta: {
                     roles: [
                         'SUPER_ADMIN',
-                        'FARMASI'
+                        'FARMASI',
                     ],
                 },
             },
+
+
+            // =================================================
+            // LABORATORIUM
+            // =================================================
+
             {
-    path: '/riwayat-pemeriksaan',
-    component: RiwayatPemeriksaan
-}
+                path: 'lab-pemeriksaan',
+                name: 'lab-pemeriksaan',
+                component: LabPemeriksaan,
+
+                meta: {
+                    requiresAuth: true,
+
+                    roles: [
+                        'SUPER_ADMIN',
+                        'LABORATORIUM',
+                    ],
+                },
+            },
+
+            {
+                path: 'laboratorium',
+                name: 'laboratorium',
+                component: Laboratorium,
+
+                meta: {
+                    requiresAuth: true,
+
+                    roles: [
+                        'SUPER_ADMIN',
+                        'LABORATORIUM',
+                    ],
+                },
+            },
+
+
+            // =================================================
+            // DOKTER - RIWAYAT PASIEN
+            // =================================================
+
+            {
+                path: 'dokter/riwayat-pasien',
+                name: 'DokterRiwayatPasien',
+                component: DokterRiwayatPasien,
+
+                meta: {
+                    roles: [
+                        'SUPER_ADMIN',
+                        'DOKTER',
+                    ],
+                },
+            },
 
         ],
     },
-    {
-    path: '/dokter/riwayat-pasien',
-    name: 'DokterRiwayatPasien',
-    component: DokterRiwayatPasien,
-    meta: {
-        requiresAuth: true
-    }
-},
-{
-    path: '/lab-pemeriksaan',
-    name: 'lab-pemeriksaan',
-    component: LabPemeriksaan,
-    meta: {
-        requiresAuth: true,
-    },
-},
-{
-    path: '/laboratorium',
-    name: 'laboratorium',
-    component: Laboratorium,
-    meta: {
-        requiresAuth: true,
-    },
-},
 
 ];
 
 
+// =====================================================
+// CREATE ROUTER
+// =====================================================
+
 const router = createRouter({
-
     history: createWebHistory(),
-
     routes,
 
+    scrollBehavior() {
+        return {
+            top: 0,
+        };
+    },
 });
 
 
@@ -456,136 +528,184 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
 
-    console.log(
-        'ROUTER GUARD:',
-        to.path
-    );
+    console.log('================================');
+    console.log('ROUTER GUARD');
+    console.log('PATH:', to.path);
+    console.log('================================');
 
 
-    // =====================================================
-    // ROUTE PUBLIK
-    // =====================================================
+    // =================================================
+    // LOGIN
+    // =================================================
 
-    if (
-        !to.meta.requiresAuth &&
-        !to.meta.roles
-    ) {
-        return true;
-    }
+    if (to.name === 'login') {
 
+        try {
 
-    // =====================================================
-    // CEK USER
-    // =====================================================
-
-    let user;
-
-    try {
-
-        const response =
-            await axios.get('/api/user');
-
-        user =
-            response.data.user ||
-            response.data;
-
-        console.log(
-            'USER AUTHENTICATED:',
-            user
-        );
-
-    } catch (error) {
-
-        console.log(
-            'USER NOT AUTHENTICATED:',
-            error.response?.status
-        );
-
-        return '/login';
-    }
-
-
-    // =====================================================
-    // AMBIL ROLE
-    // =====================================================
-
-    let roles = [];
-
-    if (Array.isArray(user.roles)) {
-
-        roles = user.roles
-            .map(role => {
-
-                if (
-                    typeof role === 'string'
-                ) {
-                    return role.toUpperCase();
+            const response = await axios.get(
+                '/api/user',
+                {
+                    withCredentials: true,
                 }
+            );
 
-                return role.name?.toUpperCase();
-            })
-            .filter(Boolean);
+            const user =
+                response.data.user ||
+                response.data;
+
+            if (user) {
+                return '/dashboard';
+            }
+
+        } catch (error) {
+
+            return true;
+
+        }
     }
 
 
-    console.log(
-        'USER ROLES:',
-        roles
-    );
-
-
-    // =====================================================
-    // SUPER ADMIN
-    // =====================================================
+    // =================================================
+    // CEK AUTH
+    // =================================================
 
     if (
-        roles.includes('SUPER_ADMIN')
+        to.meta.requiresAuth ||
+        to.meta.roles
     ) {
-        return true;
-    }
+
+        let user;
+
+        try {
+
+            const response = await axios.get(
+                '/api/user',
+                {
+                    withCredentials: true,
+                }
+            );
+
+            user =
+                response.data.user ||
+                response.data;
+
+        } catch (error) {
+
+            console.error(
+                'AUTH CHECK FAILED:',
+                error.response?.status
+            );
+
+            return '/login';
+        }
 
 
-    // =====================================================
-    // CEK ROLE ROUTE
-    // =====================================================
+        // =================================================
+        // AMBIL ROLE
+        // =================================================
 
-    const requiredRoles =
-        to.meta.roles;
+        let roles = [];
+
+        if (Array.isArray(user?.roles)) {
+
+            roles = user.roles
+                .map((role) => {
+
+                    if (
+                        typeof role === 'string'
+                    ) {
+                        return role
+                            .trim()
+                            .toUpperCase();
+                    }
+
+                    return role?.name
+                        ?.trim()
+                        ?.toUpperCase();
+
+                })
+                .filter(Boolean);
+        }
 
 
-    if (!requiredRoles) {
-        return true;
-    }
+        console.log('USER:', user);
+        console.log('ROLES:', roles);
 
 
-    const hasPermission =
-        requiredRoles.some(
-            role =>
-                roles.includes(role)
+        // =================================================
+        // SUPER ADMIN = FULL ACCESS
+        // =================================================
+
+        if (
+            roles.includes('SUPER_ADMIN')
+        ) {
+
+            console.log(
+                'SUPER_ADMIN -> FULL ACCESS'
+            );
+
+            return true;
+        }
+
+
+        // =================================================
+        // ROUTE TANPA ROLE
+        // =================================================
+
+        if (!to.meta.roles) {
+            return true;
+        }
+
+
+        // =================================================
+        // CEK ROLE
+        // =================================================
+
+        const requiredRoles =
+            Array.isArray(to.meta.roles)
+                ? to.meta.roles
+                : [];
+
+
+        const hasPermission =
+            requiredRoles.some(
+                (requiredRole) =>
+                    roles.includes(
+                        requiredRole
+                            .trim()
+                            .toUpperCase()
+                    )
+            );
+
+
+        if (hasPermission) {
+
+            console.log(
+                'AKSES DIIJINKAN'
+            );
+
+            return true;
+        }
+
+
+        // =================================================
+        // AKSES DITOLAK
+        // =================================================
+
+        console.warn(
+            'AKSES DITOLAK',
+            {
+                userRoles: roles,
+                requiredRoles,
+                path: to.path,
+            }
         );
 
-
-    if (hasPermission) {
-        return true;
+        return '/dashboard';
     }
 
 
-    // =====================================================
-    // AKSES DITOLAK
-    // =====================================================
-
-    console.warn(
-        'AKSES DITOLAK:',
-        {
-            userRoles: roles,
-            requiredRoles: requiredRoles,
-            path: to.path
-        }
-    );
-
-
-    return '/dashboard';
-
+    return true;
 });
 
 

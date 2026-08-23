@@ -1219,7 +1219,8 @@ const labPermintaans = ref([]);
 const pemeriksaans = ref([]);
 const pendaftarans = ref([]);
 const dokters = ref([]);
-
+const hasilLabPendaftaran = ref([]);
+const loadingHasilLab = ref(false);
 const loading = ref(false);
 const saving = ref(false);
 const savingHasil = ref(false);
@@ -1601,6 +1602,38 @@ async function changeStatus(
             error,
             'Gagal memperbarui status laboratorium.'
         );
+    }
+}
+
+async function loadHasilLabPendaftaran(pendaftaranId) {
+    if (!pendaftaranId) {
+        hasilLabPendaftaran.value = [];
+        return;
+    }
+
+    loadingHasilLab.value = true;
+
+    try {
+        const response = await axios.get(
+            `/api/pendaftarans/${pendaftaranId}/hasil-lab`
+        );
+
+        hasilLabPendaftaran.value =
+            response.data.data || [];
+    } catch (error) {
+        console.error(
+            'Gagal mengambil hasil laboratorium:',
+            error
+        );
+
+        hasilLabPendaftaran.value = [];
+
+        handleError(
+            error,
+            'Gagal mengambil hasil laboratorium.'
+        );
+    } finally {
+        loadingHasilLab.value = false;
     }
 }
 

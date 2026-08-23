@@ -1,14 +1,14 @@
+```vue
 <script setup>
-
 import {
     ref,
     computed,
-    onMounted
+    onMounted,
 } from 'vue';
 
 import {
     useRoute,
-    useRouter
+    useRouter,
 } from 'vue-router';
 
 import axios from 'axios';
@@ -42,9 +42,7 @@ const sidebarOpen = ref(false);
 // =====================================================
 
 const userName = computed(() => {
-
     return user.value?.name || 'User';
-
 });
 
 
@@ -53,11 +51,9 @@ const userName = computed(() => {
 // =====================================================
 
 const userInitial = computed(() => {
-
     return userName.value
         .charAt(0)
         .toUpperCase();
-
 });
 
 
@@ -71,23 +67,21 @@ const roles = computed(() => {
         return [];
     }
 
-    if (Array.isArray(user.value.roles)) {
-
-        return user.value.roles
-            .map(role => {
-
-                if (typeof role === 'string') {
-                    return role.toUpperCase();
-                }
-
-                return role?.name?.toUpperCase();
-
-            })
-            .filter(Boolean);
-
+    if (!Array.isArray(user.value.roles)) {
+        return [];
     }
 
-    return [];
+    return user.value.roles
+        .map((role) => {
+
+            if (typeof role === 'string') {
+                return role.toUpperCase();
+            }
+
+            return role?.name?.toUpperCase();
+
+        })
+        .filter(Boolean);
 
 });
 
@@ -102,6 +96,10 @@ const userRole = computed(() => {
         return 'USER';
     }
 
+    if (roles.value.includes('SUPER_ADMIN')) {
+        return 'SUPER ADMIN';
+    }
+
     return roles.value[0];
 
 });
@@ -113,13 +111,15 @@ const userRole = computed(() => {
 
 const isSuperAdmin = computed(() => {
 
-    return roles.value.includes('SUPER_ADMIN');
+    return roles.value.includes(
+        'SUPER_ADMIN'
+    );
 
 });
 
 
 // =====================================================
-// CHECK ROLE
+// ROLE CHECK
 // =====================================================
 
 const hasRole = (role) => {
@@ -130,6 +130,23 @@ const hasRole = (role) => {
 
     return roles.value.includes(
         role.toUpperCase()
+    );
+
+};
+
+
+// =====================================================
+// ROLE ACCESS
+// =====================================================
+
+const canAccess = (...allowedRoles) => {
+
+    if (isSuperAdmin.value) {
+        return true;
+    }
+
+    return allowedRoles.some((role) =>
+        hasRole(role)
     );
 
 };
@@ -150,9 +167,8 @@ const getUser = async () => {
         );
 
         user.value =
-            response.data.user ||
+            response.data?.user ||
             response.data;
-
 
         console.log(
             '================================'
@@ -169,14 +185,13 @@ const getUser = async () => {
         );
 
         console.log(
-            'APP LAYOUT IS SUPER ADMIN:',
+            'APP LAYOUT SUPER ADMIN:',
             isSuperAdmin.value
         );
 
         console.log(
             '================================'
         );
-
 
     } catch (error) {
 
@@ -252,15 +267,13 @@ const closeSidebar = () => {
 
 
 // =====================================================
-// NAVIGATE MOBILE
+// MOBILE NAVIGATION
 // =====================================================
 
 const navigateMobile = () => {
 
     if (window.innerWidth < 1024) {
-
         sidebarOpen.value = false;
-
     }
 
 };
@@ -313,10 +326,6 @@ onMounted(() => {
     <Transition name="sidebar">
 
         <aside
-            v-show="
-                sidebarOpen ||
-                true
-            "
             class="
                 fixed
                 inset-y-0
@@ -328,15 +337,12 @@ onMounted(() => {
                 border-gray-200
                 flex
                 flex-col
-
                 transform
                 transition-transform
                 duration-300
                 ease-in-out
-
                 -translate-x-full
                 lg:translate-x-0
-
                 shadow-xl
                 lg:shadow-none
             "
@@ -379,16 +385,15 @@ onMounted(() => {
                             justify-center
                             w-10
                             h-10
-                            rounded-lg
+                            rounded-xl
                             bg-blue-600
                             text-white
                             font-bold
                             text-lg
+                            shadow-sm
                         "
                     >
-
                         S
-
                     </div>
 
 
@@ -400,11 +405,8 @@ onMounted(() => {
                                 text-gray-800
                             "
                         >
-
                             SIMRS
-
                         </h1>
-
 
                         <p
                             class="
@@ -412,9 +414,7 @@ onMounted(() => {
                                 text-gray-500
                             "
                         >
-
                             Sistem Informasi Rumah Sakit
-
                         </p>
 
                     </div>
@@ -425,6 +425,7 @@ onMounted(() => {
                 <!-- CLOSE MOBILE -->
 
                 <button
+                    type="button"
                     @click="closeSidebar"
                     class="
                         lg:hidden
@@ -439,11 +440,8 @@ onMounted(() => {
                         hover:text-gray-800
                         transition
                     "
-                    aria-label="Tutup menu"
                 >
-
                     ✕
-
                 </button>
 
             </div>
@@ -466,14 +464,22 @@ onMounted(() => {
 
 
                 <!-- ================================================= -->
-                <!-- DASHBOARD -->
+                <!-- UTAMA -->
                 <!-- ================================================= -->
+
+                <div class="menu-title">
+                    UTAMA
+                </div>
+
+
+                <!-- DASHBOARD -->
 
                 <router-link
                     to="/dashboard"
                     class="sidebar-item"
                     :class="{
-                        active: isActive('/dashboard')
+                        active:
+                            isActive('/dashboard')
                     }"
                     @click="navigateMobile"
                 >
@@ -495,8 +501,9 @@ onMounted(() => {
 
                 <template
                     v-if="
-                        isSuperAdmin ||
-                        hasRole('ADMIN')
+                        canAccess(
+                            'ADMIN'
+                        )
                     "
                 >
 
@@ -512,7 +519,8 @@ onMounted(() => {
                         to="/users"
                         class="sidebar-item"
                         :class="{
-                            active: isActive('/users')
+                            active:
+                                isActive('/users')
                         }"
                         @click="navigateMobile"
                     >
@@ -522,7 +530,7 @@ onMounted(() => {
                         </span>
 
                         <span>
-                            Users
+                            User Management
                         </span>
 
                     </router-link>
@@ -534,7 +542,8 @@ onMounted(() => {
                         to="/pasiens"
                         class="sidebar-item"
                         :class="{
-                            active: isActive('/pasiens')
+                            active:
+                                isActive('/pasiens')
                         }"
                         @click="navigateMobile"
                     >
@@ -556,7 +565,8 @@ onMounted(() => {
                         to="/pendaftaran"
                         class="sidebar-item"
                         :class="{
-                            active: isActive('/pendaftaran')
+                            active:
+                                isActive('/pendaftaran')
                         }"
                         @click="navigateMobile"
                     >
@@ -578,7 +588,8 @@ onMounted(() => {
                         to="/antrian"
                         class="sidebar-item"
                         :class="{
-                            active: isActive('/antrian')
+                            active:
+                                isActive('/antrian')
                         }"
                         @click="navigateMobile"
                     >
@@ -615,7 +626,8 @@ onMounted(() => {
                         to="/polis"
                         class="sidebar-item"
                         :class="{
-                            active: isActive('/polis')
+                            active:
+                                isActive('/polis')
                         }"
                         @click="navigateMobile"
                     >
@@ -637,7 +649,8 @@ onMounted(() => {
                         to="/dokters"
                         class="sidebar-item"
                         :class="{
-                            active: isActive('/dokters')
+                            active:
+                                isActive('/dokters')
                         }"
                         @click="navigateMobile"
                     >
@@ -661,8 +674,9 @@ onMounted(() => {
 
                 <template
                     v-if="
-                        isSuperAdmin ||
-                        hasRole('DOKTER')
+                        canAccess(
+                            'DOKTER'
+                        )
                     "
                 >
 
@@ -677,7 +691,10 @@ onMounted(() => {
                         to="/pemeriksaan"
                         class="sidebar-item"
                         :class="{
-                            active: isActive('/pemeriksaan')
+                            active:
+                                isActive(
+                                    '/pemeriksaan'
+                                )
                         }"
                         @click="navigateMobile"
                     >
@@ -699,7 +716,8 @@ onMounted(() => {
                         to="/resep"
                         class="sidebar-item"
                         :class="{
-                            active: isActive('/resep')
+                            active:
+                                isActive('/resep')
                         }"
                         @click="navigateMobile"
                     >
@@ -715,7 +733,7 @@ onMounted(() => {
                     </router-link>
 
 
-                    <!-- RIWAYAT -->
+                    <!-- RIWAYAT PEMERIKSAAN -->
 
                     <router-link
                         to="/riwayat-pemeriksaan"
@@ -748,13 +766,14 @@ onMounted(() => {
 
                 <template
                     v-if="
-                        isSuperAdmin ||
-                        hasRole('PERAWAT')
+                        canAccess(
+                            'PERAWAT'
+                        )
                     "
                 >
 
                     <div class="menu-title">
-                        PELAYANAN
+                        PELAYANAN PERAWAT
                     </div>
 
 
@@ -830,13 +849,83 @@ onMounted(() => {
 
 
                 <!-- ================================================= -->
+                <!-- LABORATORIUM -->
+                <!-- ================================================= -->
+
+                <template
+                    v-if="
+                        canAccess(
+                            'LABORATORIUM'
+                        )
+                    "
+                >
+
+                    <div class="menu-title">
+                        LABORATORIUM
+                    </div>
+
+
+                    <!-- PEMERIKSAAN LAB -->
+
+                    <router-link
+                        to="/lab-pemeriksaan"
+                        class="sidebar-item"
+                        :class="{
+                            active:
+                                isActive(
+                                    '/lab-pemeriksaan'
+                                )
+                        }"
+                        @click="navigateMobile"
+                    >
+
+                        <span class="menu-icon">
+                            🧪
+                        </span>
+
+                        <span>
+                            Pemeriksaan Lab
+                        </span>
+
+                    </router-link>
+
+
+                    <!-- LABORATORIUM -->
+
+                    <router-link
+                        to="/laboratorium"
+                        class="sidebar-item"
+                        :class="{
+                            active:
+                                isActive(
+                                    '/laboratorium'
+                                )
+                        }"
+                        @click="navigateMobile"
+                    >
+
+                        <span class="menu-icon">
+                            🔬
+                        </span>
+
+                        <span>
+                            Laboratorium
+                        </span>
+
+                    </router-link>
+
+                </template>
+
+
+                <!-- ================================================= -->
                 <!-- FARMASI -->
                 <!-- ================================================= -->
 
                 <template
                     v-if="
-                        isSuperAdmin ||
-                        hasRole('FARMASI')
+                        canAccess(
+                            'FARMASI'
+                        )
                     "
                 >
 
@@ -892,6 +981,17 @@ onMounted(() => {
 
                 </template>
 
+
+                <!-- ================================================= -->
+                <!-- LAB UNTUK SUPER ADMIN -->
+                <!-- ================================================= -->
+
+                <!--
+                    SUPER ADMIN sudah otomatis masuk
+                    ke canAccess() karena isSuperAdmin
+                    bernilai true.
+                -->
+
             </nav>
 
 
@@ -917,7 +1017,7 @@ onMounted(() => {
 
 
             <!-- ================================================= -->
-            <!-- USER -->
+            <!-- USER PROFILE -->
             <!-- ================================================= -->
 
             <div
@@ -939,7 +1039,7 @@ onMounted(() => {
                     "
                 >
 
-                    <!-- INITIAL -->
+                    <!-- AVATAR -->
 
                     <div
                         class="
@@ -961,10 +1061,13 @@ onMounted(() => {
                     </div>
 
 
-                    <!-- USER INFO -->
+                    <!-- INFO -->
 
                     <div
-                        class="min-w-0 flex-1"
+                        class="
+                            min-w-0
+                            flex-1
+                        "
                     >
 
                         <p
@@ -1001,6 +1104,7 @@ onMounted(() => {
                 <!-- LOGOUT -->
 
                 <button
+                    type="button"
                     @click="logout"
                     class="
                         w-full
@@ -1068,7 +1172,6 @@ onMounted(() => {
             "
         >
 
-
             <!-- LEFT -->
 
             <div
@@ -1082,6 +1185,7 @@ onMounted(() => {
                 <!-- HAMBURGER -->
 
                 <button
+                    type="button"
                     @click="sidebarOpen = true"
                     class="
                         lg:hidden
@@ -1095,7 +1199,6 @@ onMounted(() => {
                         hover:bg-gray-100
                         transition
                     "
-                    aria-label="Buka menu"
                 >
 
                     <svg
@@ -1249,7 +1352,6 @@ onMounted(() => {
 
 <style scoped>
 
-
 /* ===================================================== */
 /* SIDEBAR ITEM */
 /* ===================================================== */
@@ -1304,8 +1406,14 @@ onMounted(() => {
 
     color: #2563eb;
 
+    font-weight: 600;
+
 }
 
+
+/* ===================================================== */
+/* ICON */
+/* ===================================================== */
 
 .menu-icon {
 
@@ -1393,13 +1501,14 @@ nav::-webkit-scrollbar-thumb:hover {
 .sidebar-enter-from,
 .sidebar-leave-to {
 
-    transform: translateX(-100%);
+    transform:
+        translateX(-100%);
 
 }
 
 
 /* ===================================================== */
-/* OVERLAY TRANSITION */
+/* FADE */
 /* ===================================================== */
 
 .fade-enter-active,
@@ -1437,17 +1546,97 @@ nav::-webkit-scrollbar-thumb:hover {
 
 
 /* ===================================================== */
-/* LARGE SCREEN */
+/* DESKTOP */
 /* ===================================================== */
 
 @media (min-width: 1024px) {
 
     aside {
 
-        transform: translateX(0) !important;
+        transform:
+            translateX(0) !important;
 
     }
 
 }
 
 </style>
+```
+
+### Penting: ada satu masalah di `index.js` kamu
+
+`AppLayout.vue` di atas akan menampilkan menu Laboratorium untuk `SUPER_ADMIN` **secara otomatis**, karena `canAccess()` menganggap `SUPER_ADMIN` punya seluruh akses.
+
+Tetapi **router juga harus mengizinkan `SUPER_ADMIN`** untuk halaman tersebut.
+
+Di `index.js`, bagian ini:
+
+```js
+{
+    path: '/lab-pemeriksaan',
+    name: 'lab-pemeriksaan',
+    component: LabPemeriksaan,
+    meta: {
+        requiresAuth: true,
+    },
+},
+{
+    path: '/laboratorium',
+    name: 'laboratorium',
+    component: Laboratorium,
+    meta: {
+        requiresAuth: true,
+    },
+},
+```
+
+sebenarnya sudah bisa diakses oleh semua user yang login karena tidak punya `roles`. **Ini kurang aman.**
+
+Sebaiknya ubah menjadi:
+
+```js
+{
+    path: '/lab-pemeriksaan',
+    name: 'lab-pemeriksaan',
+    component: LabPemeriksaan,
+
+    meta: {
+        requiresAuth: true,
+
+        roles: [
+            'SUPER_ADMIN',
+            'LABORATORIUM',
+        ],
+    },
+},
+
+{
+    path: '/laboratorium',
+    name: 'laboratorium',
+    component: Laboratorium,
+
+    meta: {
+        requiresAuth: true,
+
+        roles: [
+            'SUPER_ADMIN',
+            'LABORATORIUM',
+        ],
+    },
+},
+```
+
+Dengan begitu hasil akhirnya:
+
+| Role           | Pemeriksaan Lab | Laboratorium |
+| -------------- | --------------: | -----------: |
+| `SUPER_ADMIN`  |               ✅ |            ✅ |
+| `LABORATORIUM` |               ✅ |            ✅ |
+| `DOKTER`       |              ❌* |            ❌ |
+| `PERAWAT`      |               ❌ |            ❌ |
+| `FARMASI`      |               ❌ |            ❌ |
+| `ADMIN`        |               ❌ |            ❌ |
+
+* Dokter tetap bisa **meminta pemeriksaan lab dari halaman Pemeriksaan Pasien**, sedangkan halaman kerja laboratorium hanya untuk petugas laboratorium dan Super Admin. Alur permintaan lab di kode pemeriksaanmu memang menggunakan endpoint `/api/lab-permintaans`.
+
+**Jadi iya: sekarang sudah benar-benar pakai `AppLayout` sebagai layout utama.** `Laboratorium.vue` tidak perlu punya sidebar sendiri; dia cukup menjadi isi dari `<router-view />`.

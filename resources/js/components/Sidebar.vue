@@ -2,35 +2,60 @@
     <aside
         class="fixed left-0 top-0 z-40 h-screen w-64 border-r border-gray-200 bg-white"
     >
-        <!-- Logo / Brand -->
-        <div class="flex h-16 items-center border-b border-gray-200 px-6">
+        <!-- ===================================================== -->
+        <!-- LOGO -->
+        <!-- ===================================================== -->
+
+        <div
+            class="flex h-16 items-center border-b border-gray-200 px-6"
+        >
             <div>
-                <h1 class="text-xl font-bold text-blue-600">
+                <h1
+                    class="text-xl font-bold text-blue-600"
+                >
                     SIMRS
                 </h1>
 
-                <p class="text-xs text-gray-500">
+                <p
+                    class="text-xs text-gray-500"
+                >
                     Sistem Informasi Rumah Sakit
                 </p>
             </div>
         </div>
 
 
-        <!-- Menu -->
-        <nav class="h-[calc(100vh-4rem)] overflow-y-auto px-3 py-5">
+        <!-- ===================================================== -->
+        <!-- MENU -->
+        <!-- ===================================================== -->
 
-            <!-- DASHBOARD -->
+        <nav
+            class="h-[calc(100vh-4rem)] overflow-y-auto px-3 py-5"
+        >
+
+            <!-- ================================================= -->
+            <!-- UTAMA -->
+            <!-- ================================================= -->
+
             <div class="mb-6">
+
                 <p
                     class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400"
                 >
                     Utama
                 </p>
 
+
+                <!-- DASHBOARD -->
+
                 <router-link
+                    v-if="canAccess(['SUPER_ADMIN', 'ADMIN', 'DOKTER', 'PERAWAT', 'FARMASI', 'LABORATORIUM'])"
                     to="/dashboard"
                     class="menu-item"
-                    :class="{ 'menu-active': isActive('/dashboard') }"
+                    :class="{
+                        'menu-active':
+                            isActive('/dashboard'),
+                    }"
                 >
                     <svg
                         class="h-5 w-5"
@@ -46,13 +71,20 @@
                         />
                     </svg>
 
-                    <span>Dashboard</span>
+                    <span>
+                        Dashboard
+                    </span>
                 </router-link>
+
             </div>
 
 
+            <!-- ================================================= -->
             <!-- MASTER DATA -->
+            <!-- ================================================= -->
+
             <div class="mb-6">
+
                 <p
                     class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400"
                 >
@@ -60,11 +92,24 @@
                 </p>
 
 
-                <!-- Pasien -->
+                <!-- PASIEN -->
+
                 <router-link
+                    v-if="
+                        canAccess([
+                            'SUPER_ADMIN',
+                            'ADMIN',
+                            'DOKTER',
+                            'PERAWAT',
+                            'LABORATORIUM',
+                        ])
+                    "
                     to="/pasiens"
                     class="menu-item"
-                    :class="{ 'menu-active': isActive('/pasiens') }"
+                    :class="{
+                        'menu-active':
+                            isActive('/pasiens'),
+                    }"
                 >
                     <svg
                         class="h-5 w-5"
@@ -80,15 +125,27 @@
                         />
                     </svg>
 
-                    <span>Pasien</span>
+                    <span>
+                        Pasien
+                    </span>
                 </router-link>
 
 
-                <!-- Dokter -->
+                <!-- DOKTER -->
+
                 <router-link
+                    v-if="
+                        canAccess([
+                            'SUPER_ADMIN',
+                            'ADMIN',
+                        ])
+                    "
                     to="/dokters"
                     class="menu-item"
-                    :class="{ 'menu-active': isActive('/dokters') }"
+                    :class="{
+                        'menu-active':
+                            isActive('/dokters'),
+                    }"
                 >
                     <svg
                         class="h-5 w-5"
@@ -104,15 +161,27 @@
                         />
                     </svg>
 
-                    <span>Dokter</span>
+                    <span>
+                        Dokter
+                    </span>
                 </router-link>
 
 
-                <!-- Poli -->
+                <!-- POLI -->
+
                 <router-link
+                    v-if="
+                        canAccess([
+                            'SUPER_ADMIN',
+                            'ADMIN',
+                        ])
+                    "
                     to="/polis"
                     class="menu-item"
-                    :class="{ 'menu-active': isActive('/polis') }"
+                    :class="{
+                        'menu-active':
+                            isActive('/polis'),
+                    }"
                 >
                     <svg
                         class="h-5 w-5"
@@ -128,15 +197,27 @@
                         />
                     </svg>
 
-                    <span>Poli</span>
+                    <span>
+                        Poli
+                    </span>
                 </router-link>
 
 
-                <!-- Obat -->
+                <!-- OBAT -->
+
                 <router-link
+                    v-if="
+                        canAccess([
+                            'SUPER_ADMIN',
+                            'FARMASI',
+                        ])
+                    "
                     to="/obat"
                     class="menu-item"
-                    :class="{ 'menu-active': isActive('/obat') }"
+                    :class="{
+                        'menu-active':
+                            isActive('/obat'),
+                    }"
                 >
                     <svg
                         class="h-5 w-5"
@@ -152,13 +233,20 @@
                         />
                     </svg>
 
-                    <span>Obat</span>
+                    <span>
+                        Obat
+                    </span>
                 </router-link>
+
             </div>
 
 
+            <!-- ================================================= -->
             <!-- PELAYANAN -->
+            <!-- ================================================= -->
+
             <div class="mb-6">
+
                 <p
                     class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400"
                 >
@@ -166,11 +254,21 @@
                 </p>
 
 
-                <!-- Pendaftaran -->
+                <!-- PENDAFTARAN -->
+
                 <router-link
+                    v-if="
+                        canAccess([
+                            'SUPER_ADMIN',
+                            'ADMIN',
+                        ])
+                    "
                     to="/pendaftaran"
                     class="menu-item"
-                    :class="{ 'menu-active': isActive('/pendaftaran') }"
+                    :class="{
+                        'menu-active':
+                            isActive('/pendaftaran'),
+                    }"
                 >
                     <svg
                         class="h-5 w-5"
@@ -186,15 +284,29 @@
                         />
                     </svg>
 
-                    <span>Pendaftaran</span>
+                    <span>
+                        Pendaftaran
+                    </span>
                 </router-link>
 
 
-                <!-- Antrian -->
+                <!-- ANTRIAN -->
+
                 <router-link
+                    v-if="
+                        canAccess([
+                            'SUPER_ADMIN',
+                            'ADMIN',
+                            'DOKTER',
+                            'PERAWAT',
+                        ])
+                    "
                     to="/antrian"
                     class="menu-item"
-                    :class="{ 'menu-active': isActive('/antrian') }"
+                    :class="{
+                        'menu-active':
+                            isActive('/antrian'),
+                    }"
                 >
                     <svg
                         class="h-5 w-5"
@@ -210,14 +322,28 @@
                         />
                     </svg>
 
-                    <span>Antrian</span>
+                    <span>
+                        Antrian
+                    </span>
                 </router-link>
 
 
-                <!-- Pemeriksaan -->
+                <!-- PEMERIKSAAN -->
+
                 <router-link
-                    to="/pendaftaran"
+                    v-if="
+                        canAccess([
+                            'SUPER_ADMIN',
+                            'DOKTER',
+                            'PERAWAT',
+                        ])
+                    "
+                    to="/pemeriksaan"
                     class="menu-item"
+                    :class="{
+                        'menu-active':
+                            isActive('/pemeriksaan'),
+                    }"
                 >
                     <svg
                         class="h-5 w-5"
@@ -233,15 +359,27 @@
                         />
                     </svg>
 
-                    <span>Pemeriksaan</span>
+                    <span>
+                        Pemeriksaan
+                    </span>
                 </router-link>
 
 
-                <!-- Resep -->
+                <!-- RESEP -->
+
                 <router-link
+                    v-if="
+                        canAccess([
+                            'SUPER_ADMIN',
+                            'DOKTER',
+                        ])
+                    "
                     to="/resep"
                     class="menu-item"
-                    :class="{ 'menu-active': isActive('/resep') }"
+                    :class="{
+                        'menu-active':
+                            isActive('/resep'),
+                    }"
                 >
                     <svg
                         class="h-5 w-5"
@@ -257,15 +395,27 @@
                         />
                     </svg>
 
-                    <span>Resep</span>
+                    <span>
+                        Resep
+                    </span>
                 </router-link>
 
 
-                <!-- Apotek -->
+                <!-- APOTEK -->
+
                 <router-link
+                    v-if="
+                        canAccess([
+                            'SUPER_ADMIN',
+                            'FARMASI',
+                        ])
+                    "
                     to="/apotek"
                     class="menu-item"
-                    :class="{ 'menu-active': isActive('/apotek') }"
+                    :class="{
+                        'menu-active':
+                            isActive('/apotek'),
+                    }"
                 >
                     <svg
                         class="h-5 w-5"
@@ -281,14 +431,30 @@
                         />
                     </svg>
 
-                    <span>Apotek</span>
+                    <span>
+                        Apotek
+                    </span>
                 </router-link>
 
 
-                <!-- Riwayat Pasien -->
+                <!-- RIWAYAT PASIEN -->
+
                 <router-link
-                    to="/pasiens"
+                    v-if="
+                        canAccess([
+                            'SUPER_ADMIN',
+                            'DOKTER',
+                            'PERAWAT',
+                        ])
+                    "
+                    to="/dokter/riwayat-pasien"
                     class="menu-item"
+                    :class="{
+                        'menu-active':
+                            isActive(
+                                '/dokter/riwayat-pasien'
+                            ),
+                    }"
                 >
                     <svg
                         class="h-5 w-5"
@@ -304,23 +470,136 @@
                         />
                     </svg>
 
-                    <span>Riwayat Pasien</span>
+                    <span>
+                        Riwayat Pasien
+                    </span>
                 </router-link>
+
             </div>
 
 
-            <!-- ADMIN -->
-            <div class="mb-6">
+            <!-- ================================================= -->
+            <!-- LABORATORIUM -->
+            <!-- ================================================= -->
+
+            <div
+                v-if="
+                    canAccess([
+                        'SUPER_ADMIN',
+                        'LABORATORIUM',
+                    ])
+                "
+                class="mb-6"
+            >
+
+                <p
+                    class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400"
+                >
+                    Laboratorium
+                </p>
+
+
+                <!-- PEMERIKSAAN LAB -->
+
+                <router-link
+                    to="/lab-pemeriksaan"
+                    class="menu-item"
+                    :class="{
+                        'menu-active':
+                            isActive(
+                                '/lab-pemeriksaan'
+                            ),
+                    }"
+                >
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19.428 15.341A8 8 0 116.172 5.09m13.256 10.251L22 18m-4.572-2.659L15 18m-5-13v5m0 0l-3 3m3-3l3 3"
+                        />
+                    </svg>
+
+                    <span>
+                        Master Pemeriksaan Lab
+                    </span>
+                </router-link>
+
+
+                <!-- LABORATORIUM -->
+
+                <router-link
+                    to="/laboratorium"
+                    class="menu-item"
+                    :class="{
+                        'menu-active':
+                            isActive(
+                                '/laboratorium'
+                            ),
+                    }"
+                >
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9 3h6m-3 0v5m-4 4h8m-9 8h10a2 2 0 002-2v-1a5 5 0 00-5-5h-4a5 5 0 00-5 5v1a2 2 0 002 2z"
+                        />
+                    </svg>
+
+                    <span>
+                        Laboratorium
+                    </span>
+                </router-link>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- ADMINISTRASI -->
+            <!-- ================================================= -->
+
+            <div
+                v-if="
+                    canAccess([
+                        'SUPER_ADMIN',
+                        'ADMIN',
+                    ])
+                "
+                class="mb-6"
+            >
+
                 <p
                     class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400"
                 >
                     Administrasi
                 </p>
 
+
+                <!-- USER MANAGEMENT -->
+
                 <router-link
+                    v-if="
+                        canAccess([
+                            'SUPER_ADMIN',
+                        ])
+                    "
                     to="/users"
                     class="menu-item"
-                    :class="{ 'menu-active': isActive('/users') }"
+                    :class="{
+                        'menu-active':
+                            isActive('/users'),
+                    }"
                 >
                     <svg
                         class="h-5 w-5"
@@ -336,8 +615,11 @@
                         />
                     </svg>
 
-                    <span>User Management</span>
+                    <span>
+                        User Management
+                    </span>
                 </router-link>
+
             </div>
 
         </nav>
@@ -346,17 +628,173 @@
 
 
 <script setup>
-import { useRoute } from 'vue-router';
+
+import {
+    ref,
+    onMounted,
+} from 'vue';
+
+import axios from 'axios';
+
+import {
+    useRoute,
+} from 'vue-router';
+
+
+// =====================================================
+// ROUTE
+// =====================================================
 
 const route = useRoute();
 
-const isActive = (path) => {
-    return route.path === path || route.path.startsWith(path + '/');
-};
+
+// =====================================================
+// USER
+// =====================================================
+
+const userRoles = ref([]);
+
+const loadingUser = ref(true);
+
+
+// =====================================================
+// LOAD USER
+// =====================================================
+
+async function loadUser() {
+
+    loadingUser.value = true;
+
+    try {
+
+        const response =
+            await axios.get(
+                '/api/user'
+            );
+
+        const user =
+            response.data.user ||
+            response.data;
+
+
+        if (
+            Array.isArray(
+                user.roles
+            )
+        ) {
+
+            userRoles.value =
+                user.roles
+                    .map((role) => {
+
+                        if (
+                            typeof role ===
+                            'string'
+                        ) {
+                            return role
+                                .toUpperCase();
+                        }
+
+                        return role.name
+                            ?.toUpperCase();
+
+                    })
+                    .filter(Boolean);
+
+        } else {
+
+            userRoles.value = [];
+
+        }
+
+        console.log(
+            'SIDEBAR USER:',
+            user
+        );
+
+        console.log(
+            'SIDEBAR ROLES:',
+            userRoles.value
+        );
+
+    } catch (error) {
+
+        console.error(
+            'Gagal mengambil user:',
+            error
+        );
+
+        userRoles.value = [];
+
+    } finally {
+
+        loadingUser.value = false;
+
+    }
+
+}
+
+
+// =====================================================
+// CHECK ACCESS
+// =====================================================
+
+function canAccess(
+    allowedRoles
+) {
+
+    // SUPER ADMIN BISA SEMUA
+
+    if (
+        userRoles.value.includes(
+            'SUPER_ADMIN'
+        )
+    ) {
+        return true;
+    }
+
+
+    return allowedRoles.some(
+        (role) =>
+            userRoles.value.includes(
+                role.toUpperCase()
+            )
+    );
+
+}
+
+
+// =====================================================
+// ACTIVE MENU
+// =====================================================
+
+function isActive(path) {
+
+    return (
+        route.path === path ||
+        route.path.startsWith(
+            path + '/'
+        )
+    );
+
+}
+
+
+// =====================================================
+// MOUNT
+// =====================================================
+
+onMounted(() => {
+
+    loadUser();
+
+});
+
 </script>
 
 
 <style scoped>
+
 .menu-item {
     display: flex;
     align-items: center;
@@ -381,4 +819,5 @@ const isActive = (path) => {
     color: #2563eb;
     font-weight: 600;
 }
+
 </style>

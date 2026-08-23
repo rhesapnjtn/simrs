@@ -28,7 +28,7 @@ class LabHasil extends Model
     ];
 
     /**
-     * Relasi ke detail permintaan lab
+     * Relasi ke detail permintaan laboratorium
      */
     public function detail(): BelongsTo
     {

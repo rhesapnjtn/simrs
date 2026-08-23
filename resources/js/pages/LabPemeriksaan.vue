@@ -1,7 +1,58 @@
-```vue
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import {
+    ref,
+    computed,
+    onMounted,
+} from 'vue'
+
 import axios from 'axios'
+
+/*
+|--------------------------------------------------------------------------
+| USER & ROLE
+|--------------------------------------------------------------------------
+*/
+
+const user = ref(null)
+const userLoading = ref(true)
+
+const roles = computed(() => {
+    if (!user.value) {
+        return []
+    }
+
+    if (!Array.isArray(user.value.roles)) {
+        return []
+    }
+
+    return user.value.roles
+        .map((role) => {
+            if (typeof role === 'string') {
+                return role.trim().toUpperCase()
+            }
+
+            return role?.name
+                ?.trim()
+                ?.toUpperCase()
+        })
+        .filter(Boolean)
+})
+
+const isSuperAdmin = computed(() => {
+    return roles.value.includes('SUPER_ADMIN')
+})
+
+const isLaboratorium = computed(() => {
+    return roles.value.includes('LABORATORIUM')
+})
+
+const canAccess = computed(() => {
+    return (
+        isSuperAdmin.value ||
+        isLaboratorium.value
+    )
+})
+
 
 /*
 |--------------------------------------------------------------------------
@@ -19,10 +70,9 @@ const search = ref('')
 const showModal = ref(false)
 const isEdit = ref(false)
 
-const selectedLab = ref(null)
-
 const successMessage = ref('')
 const errorMessage = ref('')
+
 
 /*
 |--------------------------------------------------------------------------
@@ -41,6 +91,7 @@ const form = ref({
     is_active: true,
 })
 
+
 /*
 |--------------------------------------------------------------------------
 | COMPUTED
@@ -48,7 +99,9 @@ const form = ref({
 */
 
 const filteredLabPemeriksaans = computed(() => {
-    const keyword = search.value.trim().toLowerCase()
+    const keyword = search.value
+        .trim()
+        .toLowerCase()
 
     if (!keyword) {
         return labPemeriksaans.value
@@ -56,12 +109,21 @@ const filteredLabPemeriksaans = computed(() => {
 
     return labPemeriksaans.value.filter((item) => {
         return (
-            item.kode?.toLowerCase().includes(keyword) ||
-            item.nama?.toLowerCase().includes(keyword) ||
-            item.kategori?.toLowerCase().includes(keyword)
+            item.kode
+                ?.toLowerCase()
+                .includes(keyword) ||
+
+            item.nama
+                ?.toLowerCase()
+                .includes(keyword) ||
+
+            item.kategori
+                ?.toLowerCase()
+                .includes(keyword)
         )
     })
 })
+
 
 /*
 |--------------------------------------------------------------------------
@@ -73,6 +135,7 @@ function resetMessages() {
     successMessage.value = ''
     errorMessage.value = ''
 }
+
 
 function resetForm() {
     form.value = {
@@ -87,21 +150,27 @@ function resetForm() {
     }
 }
 
+
 function formatRupiah(value) {
     const number = Number(value || 0)
 
-    return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0,
-    }).format(number)
+    return new Intl.NumberFormat(
+        'id-ID',
+        {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+        }
+    ).format(number)
 }
+
 
 function statusClass(status) {
     return status
         ? 'bg-green-100 text-green-700'
         : 'bg-red-100 text-red-700'
 }
+
 
 function showSuccess(message) {
     successMessage.value = message
@@ -112,22 +181,95 @@ function showSuccess(message) {
     }, 4000)
 }
 
+
 function showError(message) {
     errorMessage.value = message
     successMessage.value = ''
 }
 
+
 /*
 |--------------------------------------------------------------------------
-| LOAD DATA
+| GET USER
+|--------------------------------------------------------------------------
+*/
+
+async function getUser() {
+    try {
+        userLoading.value = true
+
+        const response = await axios.get(
+            '/api/user',
+            {
+                withCredentials: true,
+            }
+        )
+
+        user.value =
+            response.data.user ||
+            response.data
+
+        console.log(
+            '================================'
+        )
+
+        console.log(
+            'LAB PAGE USER:',
+            user.value
+        )
+
+        console.log(
+            'LAB PAGE ROLES:',
+            roles.value
+        )
+
+        console.log(
+            'IS SUPER ADMIN:',
+            isSuperAdmin.value
+        )
+
+        console.log(
+            'IS LABORATORIUM:',
+            isLaboratorium.value
+        )
+
+        console.log(
+            'CAN ACCESS:',
+            canAccess.value
+        )
+
+        console.log(
+            '================================'
+        )
+
+    } catch (error) {
+        console.error(
+            'Gagal mengambil user:',
+            error
+        )
+
+        user.value = null
+
+    } finally {
+        userLoading.value = false
+    }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| LOAD DATA LAB
 |--------------------------------------------------------------------------
 */
 
 async function loadLabPemeriksaans() {
+
     loading.value = true
+
     resetMessages()
 
     try {
+
         const response = await axios.get(
             '/api/lab-pemeriksaans',
             {
@@ -139,16 +281,42 @@ async function loadLabPemeriksaans() {
             response.data.data ?? []
 
     } catch (error) {
-        console.error(error)
+
+        console.error(
+            'LOAD LAB ERROR:',
+            error
+        )
+
+        /*
+        |--------------------------------------------------------------------------
+        | HANDLE 403
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            error.response?.status === 403
+        ) {
+
+            showError(
+                error.response?.data?.message ??
+                'Anda tidak memiliki akses ke data pemeriksaan laboratorium.'
+            )
+
+            return
+        }
 
         showError(
             error.response?.data?.message ??
             'Gagal mengambil data pemeriksaan laboratorium.'
         )
+
     } finally {
+
         loading.value = false
+
     }
 }
+
 
 /*
 |--------------------------------------------------------------------------
@@ -157,6 +325,7 @@ async function loadLabPemeriksaans() {
 */
 
 function openCreateModal() {
+
     resetMessages()
 
     resetForm()
@@ -166,34 +335,48 @@ function openCreateModal() {
     showModal.value = true
 }
 
+
 function openEditModal(item) {
+
     resetMessages()
 
     isEdit.value = true
 
     form.value = {
         id: item.id,
+
         kode: item.kode ?? '',
+
         nama: item.nama ?? '',
+
         kategori: item.kategori ?? '',
+
         satuan: item.satuan ?? '',
-        nilai_rujukan: item.nilai_rujukan ?? '',
-        harga: Number(item.harga ?? 0),
-        is_active: Boolean(item.is_active),
+
+        nilai_rujukan:
+            item.nilai_rujukan ?? '',
+
+        harga:
+            Number(item.harga ?? 0),
+
+        is_active:
+            Boolean(item.is_active),
     }
 
     showModal.value = true
 }
 
+
 function closeModal() {
+
     if (submitting.value) {
         return
     }
 
     showModal.value = false
 
-    selectedLab.value = null
 }
+
 
 /*
 |--------------------------------------------------------------------------
@@ -202,21 +385,53 @@ function closeModal() {
 */
 
 async function submitForm() {
+
     submitting.value = true
+
     resetMessages()
 
     try {
+
         const payload = {
-            kode: form.value.kode,
-            nama: form.value.nama,
-            kategori: form.value.kategori || null,
-            satuan: form.value.satuan || null,
-            nilai_rujukan: form.value.nilai_rujukan || null,
-            harga: Number(form.value.harga),
-            is_active: form.value.is_active,
+
+            kode:
+                form.value.kode
+                    .trim()
+                    .toUpperCase(),
+
+            nama:
+                form.value.nama
+                    .trim(),
+
+            kategori:
+                form.value.kategori ||
+                null,
+
+            satuan:
+                form.value.satuan ||
+                null,
+
+            nilai_rujukan:
+                form.value.nilai_rujukan ||
+                null,
+
+            harga:
+                Number(form.value.harga),
+
+            is_active:
+                Boolean(form.value.is_active),
+
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | UPDATE
+        |--------------------------------------------------------------------------
+        */
+
         if (isEdit.value) {
+
             await axios.put(
                 `/api/lab-pemeriksaans/${form.value.id}`,
                 payload,
@@ -228,7 +443,18 @@ async function submitForm() {
             showSuccess(
                 'Pemeriksaan laboratorium berhasil diperbarui.'
             )
-        } else {
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CREATE
+        |--------------------------------------------------------------------------
+        */
+
+        else {
+
             await axios.post(
                 '/api/lab-pemeriksaans',
                 payload,
@@ -242,14 +468,29 @@ async function submitForm() {
             )
         }
 
+
         closeModal()
 
         await loadLabPemeriksaans()
 
     } catch (error) {
-        console.error(error)
 
-        if (error.response?.data?.errors) {
+        console.error(
+            'SUBMIT LAB ERROR:',
+            error
+        )
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDATION
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            error.response?.data?.errors
+        ) {
+
             const errors =
                 error.response.data.errors
 
@@ -261,16 +502,24 @@ async function submitForm() {
                     ? firstError[0]
                     : 'Data tidak valid.'
             )
-        } else {
+
+        }
+
+        else {
+
             showError(
                 error.response?.data?.message ??
                 'Gagal menyimpan pemeriksaan laboratorium.'
             )
         }
+
     } finally {
+
         submitting.value = false
+
     }
 }
+
 
 /*
 |--------------------------------------------------------------------------
@@ -279,6 +528,7 @@ async function submitForm() {
 */
 
 async function deleteLab(item) {
+
     const confirmed = confirm(
         `Apakah Anda yakin ingin menghapus pemeriksaan "${item.nama}"?`
     )
@@ -290,6 +540,7 @@ async function deleteLab(item) {
     resetMessages()
 
     try {
+
         await axios.delete(
             `/api/lab-pemeriksaans/${item.id}`,
             {
@@ -304,7 +555,11 @@ async function deleteLab(item) {
         await loadLabPemeriksaans()
 
     } catch (error) {
-        console.error(error)
+
+        console.error(
+            'DELETE LAB ERROR:',
+            error
+        )
 
         showError(
             error.response?.data?.message ??
@@ -313,6 +568,7 @@ async function deleteLab(item) {
     }
 }
 
+
 /*
 |--------------------------------------------------------------------------
 | TOGGLE STATUS
@@ -320,26 +576,41 @@ async function deleteLab(item) {
 */
 
 async function toggleStatus(item) {
-    const newStatus = !item.is_active
+
+    const newStatus =
+        !item.is_active
 
     try {
+
         await axios.put(
             `/api/lab-pemeriksaans/${item.id}`,
             {
                 kode: item.kode,
+
                 nama: item.nama,
-                kategori: item.kategori,
-                satuan: item.satuan,
-                nilai_rujukan: item.nilai_rujukan,
-                harga: Number(item.harga),
-                is_active: newStatus,
+
+                kategori:
+                    item.kategori,
+
+                satuan:
+                    item.satuan,
+
+                nilai_rujukan:
+                    item.nilai_rujukan,
+
+                harga:
+                    Number(item.harga),
+
+                is_active:
+                    newStatus,
             },
             {
                 withCredentials: true,
             }
         )
 
-        item.is_active = newStatus
+        item.is_active =
+            newStatus
 
         showSuccess(
             newStatus
@@ -348,7 +619,11 @@ async function toggleStatus(item) {
         )
 
     } catch (error) {
-        console.error(error)
+
+        console.error(
+            'TOGGLE LAB ERROR:',
+            error
+        )
 
         showError(
             error.response?.data?.message ??
@@ -357,14 +632,29 @@ async function toggleStatus(item) {
     }
 }
 
+
 /*
 |--------------------------------------------------------------------------
 | INITIAL LOAD
 |--------------------------------------------------------------------------
 */
 
-onMounted(() => {
-    loadLabPemeriksaans()
+onMounted(async () => {
+
+    await getUser()
+
+    /*
+    |--------------------------------------------------------------------------
+    | HANYA LOAD DATA JIKA ROLE BENAR
+    |--------------------------------------------------------------------------
+    */
+
+    if (canAccess.value) {
+
+        await loadLabPemeriksaans()
+
+    }
+
 })
 </script>
 
@@ -375,355 +665,477 @@ onMounted(() => {
 
         <div class="mx-auto max-w-7xl">
 
+
             <!-- ===================================================== -->
-            <!-- HEADER -->
+            <!-- LOADING USER -->
             <!-- ===================================================== -->
 
             <div
-                class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+                v-if="userLoading"
+                class="flex min-h-[400px] items-center justify-center"
             >
 
-                <div>
+                <div class="text-center">
 
-                    <h1 class="text-2xl font-bold text-gray-800">
-                        Pemeriksaan Laboratorium
-                    </h1>
+                    <div
+                        class="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"
+                    ></div>
 
-                    <p class="mt-1 text-sm text-gray-500">
-                        Kelola master jenis pemeriksaan laboratorium.
+                    <p class="text-sm text-gray-500">
+                        Memuat informasi pengguna...
                     </p>
 
                 </div>
 
+            </div>
 
-                <button
-                    @click="openCreateModal"
-                    class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+
+            <!-- ===================================================== -->
+            <!-- ACCESS DENIED -->
+            <!-- ===================================================== -->
+
+            <div
+                v-else-if="!canAccess"
+                class="flex min-h-[400px] items-center justify-center"
+            >
+
+                <div
+                    class="w-full max-w-md rounded-2xl border border-red-200 bg-white p-8 text-center shadow-sm"
                 >
-                    + Tambah Pemeriksaan
-                </button>
+
+                    <div
+                        class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-3xl"
+                    >
+                        🔒
+                    </div>
+
+                    <h2
+                        class="text-xl font-bold text-gray-800"
+                    >
+                        Anda tidak memiliki akses
+                    </h2>
+
+                    <p
+                        class="mt-2 text-sm text-gray-500"
+                    >
+                        Halaman ini hanya dapat diakses oleh
+                        pengguna dengan role
+                        <strong>
+                            LABORATORIUM
+                        </strong>
+                        atau
+                        <strong>
+                            SUPER ADMIN
+                        </strong>.
+                    </p>
+
+                    <div
+                        class="mt-5 rounded-lg bg-gray-50 p-3 text-left"
+                    >
+
+                        <p
+                            class="text-xs text-gray-500"
+                        >
+                            Role terdeteksi:
+                        </p>
+
+                        <p
+                            class="mt-1 text-sm font-semibold text-gray-800"
+                        >
+                            {{ roles.join(', ') || 'Tidak diketahui' }}
+                        </p>
+
+                    </div>
+
+                </div>
 
             </div>
 
 
             <!-- ===================================================== -->
-            <!-- ALERT SUCCESS -->
+            <!-- CONTENT -->
             <!-- ===================================================== -->
 
-            <div
-                v-if="successMessage"
-                class="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
-            >
-                {{ successMessage }}
-            </div>
+            <template v-else>
 
-
-            <!-- ===================================================== -->
-            <!-- ALERT ERROR -->
-            <!-- ===================================================== -->
-
-            <div
-                v-if="errorMessage"
-                class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-            >
-                {{ errorMessage }}
-            </div>
-
-
-            <!-- ===================================================== -->
-            <!-- CARD -->
-            <!-- ===================================================== -->
-
-            <div
-                class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
-            >
 
                 <!-- ================================================= -->
-                <!-- TOOLBAR -->
+                <!-- HEADER -->
                 <!-- ================================================= -->
 
                 <div
-                    class="flex flex-col gap-4 border-b border-gray-200 p-5 md:flex-row md:items-center md:justify-between"
+                    class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
                 >
 
                     <div>
 
-                        <h2 class="font-semibold text-gray-800">
-                            Daftar Pemeriksaan
-                        </h2>
+                        <h1
+                            class="text-2xl font-bold text-gray-800"
+                        >
+                            Pemeriksaan Laboratorium
+                        </h1>
 
-                        <p class="mt-1 text-xs text-gray-500">
-                            {{ filteredLabPemeriksaans.length }}
-                            pemeriksaan ditemukan
+                        <p
+                            class="mt-1 text-sm text-gray-500"
+                        >
+                            Kelola master jenis pemeriksaan laboratorium.
                         </p>
 
                     </div>
 
 
-                    <!-- SEARCH -->
+                    <button
+                        @click="openCreateModal"
+                        class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                    >
+                        + Tambah Pemeriksaan
+                    </button>
 
-                    <div class="relative w-full md:w-80">
+                </div>
 
-                        <span
-                            class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+
+                <!-- ================================================= -->
+                <!-- SUCCESS -->
+                <!-- ================================================= -->
+
+                <div
+                    v-if="successMessage"
+                    class="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
+                >
+                    {{ successMessage }}
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- ERROR -->
+                <!-- ================================================= -->
+
+                <div
+                    v-if="errorMessage"
+                    class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                >
+                    {{ errorMessage }}
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- CARD -->
+                <!-- ================================================= -->
+
+                <div
+                    class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+                >
+
+
+                    <!-- ================================================= -->
+                    <!-- TOOLBAR -->
+                    <!-- ================================================= -->
+
+                    <div
+                        class="flex flex-col gap-4 border-b border-gray-200 p-5 md:flex-row md:items-center md:justify-between"
+                    >
+
+                        <div>
+
+                            <h2
+                                class="font-semibold text-gray-800"
+                            >
+                                Daftar Pemeriksaan
+                            </h2>
+
+                            <p
+                                class="mt-1 text-xs text-gray-500"
+                            >
+                                {{ filteredLabPemeriksaans.length }}
+                                pemeriksaan ditemukan
+                            </p>
+
+                        </div>
+
+
+                        <!-- SEARCH -->
+
+                        <div
+                            class="relative w-full md:w-80"
                         >
-                            🔎
-                        </span>
 
-                        <input
-                            v-model="search"
-                            type="text"
-                            placeholder="Cari kode, nama, kategori..."
-                            class="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                        />
+                            <span
+                                class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                            >
+                                🔎
+                            </span>
+
+                            <input
+                                v-model="search"
+                                type="text"
+                                placeholder="Cari kode, nama, kategori..."
+                                class="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            />
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- TABLE -->
+                    <!-- ================================================= -->
+
+                    <div
+                        class="overflow-x-auto"
+                    >
+
+                        <table
+                            class="w-full text-left text-sm"
+                        >
+
+                            <thead
+                                class="bg-gray-50 text-xs uppercase text-gray-500"
+                            >
+
+                                <tr>
+
+                                    <th
+                                        class="px-5 py-4"
+                                    >
+                                        Kode
+                                    </th>
+
+                                    <th
+                                        class="px-5 py-4"
+                                    >
+                                        Pemeriksaan
+                                    </th>
+
+                                    <th
+                                        class="px-5 py-4"
+                                    >
+                                        Kategori
+                                    </th>
+
+                                    <th
+                                        class="px-5 py-4"
+                                    >
+                                        Satuan
+                                    </th>
+
+                                    <th
+                                        class="px-5 py-4"
+                                    >
+                                        Nilai Rujukan
+                                    </th>
+
+                                    <th
+                                        class="px-5 py-4"
+                                    >
+                                        Harga
+                                    </th>
+
+                                    <th
+                                        class="px-5 py-4"
+                                    >
+                                        Status
+                                    </th>
+
+                                    <th
+                                        class="px-5 py-4 text-center"
+                                    >
+                                        Aksi
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody
+                                class="divide-y divide-gray-100"
+                            >
+
+
+                                <!-- LOADING -->
+
+                                <tr v-if="loading">
+
+                                    <td
+                                        colspan="8"
+                                        class="px-5 py-12 text-center text-gray-500"
+                                    >
+
+                                        <div
+                                            class="flex flex-col items-center justify-center"
+                                        >
+
+                                            <div
+                                                class="mb-3 h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"
+                                            ></div>
+
+                                            <p>
+                                                Memuat data pemeriksaan...
+                                            </p>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+
+                                <!-- EMPTY -->
+
+                                <tr
+                                    v-else-if="
+                                        filteredLabPemeriksaans.length === 0
+                                    "
+                                >
+
+                                    <td
+                                        colspan="8"
+                                        class="px-5 py-12 text-center"
+                                    >
+
+                                        <div
+                                            class="text-4xl"
+                                        >
+                                            🧪
+                                        </div>
+
+                                        <p
+                                            class="mt-3 font-medium text-gray-700"
+                                        >
+                                            Belum ada pemeriksaan
+                                        </p>
+
+                                        <p
+                                            class="mt-1 text-sm text-gray-500"
+                                        >
+                                            Tambahkan master pemeriksaan
+                                            laboratorium terlebih dahulu.
+                                        </p>
+
+                                    </td>
+
+                                </tr>
+
+
+                                <!-- DATA -->
+
+                                <tr
+                                    v-for="item in filteredLabPemeriksaans"
+                                    :key="item.id"
+                                    class="transition hover:bg-gray-50"
+                                >
+
+                                    <td
+                                        class="whitespace-nowrap px-5 py-4 font-semibold text-gray-800"
+                                    >
+                                        {{ item.kode }}
+                                    </td>
+
+
+                                    <td
+                                        class="px-5 py-4"
+                                    >
+
+                                        <div
+                                            class="font-medium text-gray-800"
+                                        >
+                                            {{ item.nama }}
+                                        </div>
+
+                                    </td>
+
+
+                                    <td
+                                        class="px-5 py-4 text-gray-600"
+                                    >
+                                        {{ item.kategori || '-' }}
+                                    </td>
+
+
+                                    <td
+                                        class="px-5 py-4 text-gray-600"
+                                    >
+                                        {{ item.satuan || '-' }}
+                                    </td>
+
+
+                                    <td
+                                        class="max-w-xs px-5 py-4 text-gray-600"
+                                    >
+                                        {{ item.nilai_rujukan || '-' }}
+                                    </td>
+
+
+                                    <td
+                                        class="whitespace-nowrap px-5 py-4 font-medium text-gray-700"
+                                    >
+                                        {{ formatRupiah(item.harga) }}
+                                    </td>
+
+
+                                    <td
+                                        class="px-5 py-4"
+                                    >
+
+                                        <button
+                                            @click="toggleStatus(item)"
+                                            class="rounded-full px-3 py-1 text-xs font-semibold transition"
+                                            :class="
+                                                statusClass(
+                                                    item.is_active
+                                                )
+                                            "
+                                        >
+
+                                            {{
+                                                item.is_active
+                                                    ? 'Aktif'
+                                                    : 'Nonaktif'
+                                            }}
+
+                                        </button>
+
+                                    </td>
+
+
+                                    <td
+                                        class="whitespace-nowrap px-5 py-4 text-center"
+                                    >
+
+                                        <button
+                                            @click="openEditModal(item)"
+                                            class="mr-2 rounded-lg bg-blue-100 px-3 py-2 text-xs font-medium text-blue-700 transition hover:bg-blue-200"
+                                        >
+                                            Edit
+                                        </button>
+
+                                        <button
+                                            @click="deleteLab(item)"
+                                            class="rounded-lg bg-red-100 px-3 py-2 text-xs font-medium text-red-700 transition hover:bg-red-200"
+                                        >
+                                            Hapus
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
 
                     </div>
 
                 </div>
 
-
-                <!-- ================================================= -->
-                <!-- TABLE -->
-                <!-- ================================================= -->
-
-                <div class="overflow-x-auto">
-
-                    <table class="w-full text-left text-sm">
-
-                        <thead
-                            class="bg-gray-50 text-xs uppercase text-gray-500"
-                        >
-
-                            <tr>
-
-                                <th class="px-5 py-4">
-                                    Kode
-                                </th>
-
-                                <th class="px-5 py-4">
-                                    Pemeriksaan
-                                </th>
-
-                                <th class="px-5 py-4">
-                                    Kategori
-                                </th>
-
-                                <th class="px-5 py-4">
-                                    Satuan
-                                </th>
-
-                                <th class="px-5 py-4">
-                                    Nilai Rujukan
-                                </th>
-
-                                <th class="px-5 py-4">
-                                    Harga
-                                </th>
-
-                                <th class="px-5 py-4">
-                                    Status
-                                </th>
-
-                                <th class="px-5 py-4 text-center">
-                                    Aksi
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody class="divide-y divide-gray-100">
-
-                            <!-- LOADING -->
-
-                            <tr v-if="loading">
-
-                                <td
-                                    colspan="8"
-                                    class="px-5 py-12 text-center text-gray-500"
-                                >
-
-                                    <div
-                                        class="flex flex-col items-center justify-center"
-                                    >
-
-                                        <div
-                                            class="mb-3 h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"
-                                        ></div>
-
-                                        <p>
-                                            Memuat data pemeriksaan...
-                                        </p>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-
-                            <!-- EMPTY -->
-
-                            <tr
-                                v-else-if="filteredLabPemeriksaans.length === 0"
-                            >
-
-                                <td
-                                    colspan="8"
-                                    class="px-5 py-12 text-center"
-                                >
-
-                                    <div class="text-4xl">
-                                        🧪
-                                    </div>
-
-                                    <p
-                                        class="mt-3 font-medium text-gray-700"
-                                    >
-                                        Belum ada pemeriksaan
-                                    </p>
-
-                                    <p
-                                        class="mt-1 text-sm text-gray-500"
-                                    >
-                                        Tambahkan master pemeriksaan
-                                        laboratorium terlebih dahulu.
-                                    </p>
-
-                                </td>
-
-                            </tr>
-
-
-                            <!-- DATA -->
-
-                            <tr
-                                v-for="item in filteredLabPemeriksaans"
-                                :key="item.id"
-                                class="transition hover:bg-gray-50"
-                            >
-
-                                <!-- KODE -->
-
-                                <td
-                                    class="whitespace-nowrap px-5 py-4 font-semibold text-gray-800"
-                                >
-                                    {{ item.kode }}
-                                </td>
-
-
-                                <!-- NAMA -->
-
-                                <td class="px-5 py-4">
-
-                                    <div
-                                        class="font-medium text-gray-800"
-                                    >
-                                        {{ item.nama }}
-                                    </div>
-
-                                </td>
-
-
-                                <!-- KATEGORI -->
-
-                                <td class="px-5 py-4 text-gray-600">
-
-                                    {{ item.kategori || '-' }}
-
-                                </td>
-
-
-                                <!-- SATUAN -->
-
-                                <td class="px-5 py-4 text-gray-600">
-
-                                    {{ item.satuan || '-' }}
-
-                                </td>
-
-
-                                <!-- NILAI RUJUKAN -->
-
-                                <td
-                                    class="max-w-xs px-5 py-4 text-gray-600"
-                                >
-
-                                    {{ item.nilai_rujukan || '-' }}
-
-                                </td>
-
-
-                                <!-- HARGA -->
-
-                                <td
-                                    class="whitespace-nowrap px-5 py-4 font-medium text-gray-700"
-                                >
-
-                                    {{ formatRupiah(item.harga) }}
-
-                                </td>
-
-
-                                <!-- STATUS -->
-
-                                <td class="px-5 py-4">
-
-                                    <button
-                                        @click="toggleStatus(item)"
-                                        class="rounded-full px-3 py-1 text-xs font-semibold transition"
-                                        :class="statusClass(item.is_active)"
-                                    >
-
-                                        {{
-                                            item.is_active
-                                                ? 'Aktif'
-                                                : 'Nonaktif'
-                                        }}
-
-                                    </button>
-
-                                </td>
-
-
-                                <!-- AKSI -->
-
-                                <td
-                                    class="whitespace-nowrap px-5 py-4 text-center"
-                                >
-
-                                    <button
-                                        @click="openEditModal(item)"
-                                        class="mr-2 rounded-lg bg-blue-100 px-3 py-2 text-xs font-medium text-blue-700 transition hover:bg-blue-200"
-                                    >
-                                        Edit
-                                    </button>
-
-                                    <button
-                                        @click="deleteLab(item)"
-                                        class="rounded-lg bg-red-100 px-3 py-2 text-xs font-medium text-red-700 transition hover:bg-red-200"
-                                    >
-                                        Hapus
-                                    </button>
-
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
+            </template>
 
         </div>
 
 
         <!-- ========================================================= -->
-        <!-- MODAL TAMBAH / EDIT -->
+        <!-- MODAL -->
         <!-- ========================================================= -->
 
         <div
@@ -735,9 +1147,7 @@ onMounted(() => {
                 class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-xl"
             >
 
-                <!-- ================================================= -->
-                <!-- MODAL HEADER -->
-                <!-- ================================================= -->
+                <!-- HEADER -->
 
                 <div
                     class="flex items-center justify-between border-b px-6 py-5"
@@ -745,7 +1155,9 @@ onMounted(() => {
 
                     <div>
 
-                        <h2 class="text-xl font-bold text-gray-800">
+                        <h2
+                            class="text-xl font-bold text-gray-800"
+                        >
 
                             {{
                                 isEdit
@@ -755,7 +1167,9 @@ onMounted(() => {
 
                         </h2>
 
-                        <p class="mt-1 text-sm text-gray-500">
+                        <p
+                            class="mt-1 text-sm text-gray-500"
+                        >
                             Lengkapi informasi pemeriksaan laboratorium.
                         </p>
 
@@ -772,9 +1186,7 @@ onMounted(() => {
                 </div>
 
 
-                <!-- ================================================= -->
                 <!-- FORM -->
-                <!-- ================================================= -->
 
                 <form
                     @submit.prevent="submitForm"
@@ -884,8 +1296,12 @@ onMounted(() => {
                             class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                         />
 
-                        <p class="mt-1 text-xs text-gray-500">
-                            Contoh: 13 - 17 g/dL, &lt; 100 mg/dL, Negatif.
+                        <p
+                            class="mt-1 text-xs text-gray-500"
+                        >
+                            Contoh: 13 - 17 g/dL,
+                            &lt; 100 mg/dL,
+                            Negatif.
                         </p>
 
                     </div>
@@ -931,11 +1347,15 @@ onMounted(() => {
 
                         <div>
 
-                            <p class="text-sm font-medium text-gray-800">
+                            <p
+                                class="text-sm font-medium text-gray-800"
+                            >
                                 Status Pemeriksaan
                             </p>
 
-                            <p class="mt-1 text-xs text-gray-500">
+                            <p
+                                class="mt-1 text-xs text-gray-500"
+                            >
                                 Pemeriksaan nonaktif tidak akan tersedia
                                 untuk permintaan laboratorium baru.
                             </p>
@@ -1005,4 +1425,3 @@ onMounted(() => {
     </div>
 
 </template>
-```

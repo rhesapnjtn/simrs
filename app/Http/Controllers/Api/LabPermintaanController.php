@@ -1027,4 +1027,126 @@ class LabPermintaanController extends Controller
                 STR_PAD_LEFT
             );
     }
+    /*
+|--------------------------------------------------------------------------
+| HASIL LAB PENDAFTARAN
+|--------------------------------------------------------------------------
+| Menampilkan hanya hasil laboratorium yang sudah diverifikasi
+| untuk dokter pada satu pendaftaran.
+|
+*/
+
+public function hasilLabPendaftaran(
+    \App\Models\Pendaftaran $pendaftaran
+): JsonResponse {
+
+    try {
+
+        $labPermintaans = LabPermintaan::with([
+            'dokter',
+            'details.labPemeriksaan',
+            'details.hasil.verifiedBy',
+        ])
+            ->where(
+                'pendaftaran_id',
+                $pendaftaran->id
+            )
+            ->where(
+                'status',
+                'DIVERIFIKASI'
+            )
+            ->latest('id')
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Hanya ambil hasil yang sudah diverifikasi
+        |--------------------------------------------------------------------------
+        */
+
+        $data = $labPermintaans->map(
+            function ($labPermintaan) {
+
+                return [
+
+                    'id' =>
+                        $labPermintaan->id,
+
+                    'no_lab' =>
+                        $labPermintaan->no_lab,
+
+                    'tanggal_permintaan' =>
+                        $labPermintaan->tanggal_permintaan,
+
+                    'status' =>
+                        $labPermintaan->status,
+
+                    'catatan' =>
+                        $labPermintaan->catatan,
+
+                    'dokter' =>
+                        $labPermintaan->dokter,
+
+                    'pemeriksaan' =>
+                        $labPermintaan->details
+                            ->filter(function ($detail) {
+
+                                return $detail->hasil &&
+                                    $detail->hasil->tanggal_verifikasi !== null;
+
+                            })
+                            ->map(function ($detail) {
+
+                                return [
+
+                                    'detail_id' =>
+                                        $detail->id,
+
+                                    'pemeriksaan' =>
+                                        $detail->labPemeriksaan,
+
+                                    'hasil' =>
+                                        $detail->hasil,
+
+                                ];
+
+                            })
+                            ->values(),
+
+                ];
+
+            }
+        );
+
+        return response()->json([
+
+            'success' => true,
+
+            'message' =>
+                'Hasil laboratorium terverifikasi berhasil diambil.',
+
+            'data' => $data,
+
+        ]);
+
+    } catch (Throwable $e) {
+
+        report($e);
+
+        return response()->json([
+
+            'success' => false,
+
+            'message' =>
+                'Gagal mengambil hasil laboratorium.',
+
+            'error' => config('app.debug')
+                ? $e->getMessage()
+                : null,
+
+        ], 500);
+
+    }
+
+}
 }
